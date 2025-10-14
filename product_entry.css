@@ -1,0 +1,88 @@
+.container-productentry{
+		padding-left:20px;
+		position: fixed;
+	}
+	label{
+		font-size:25px;
+		display: inline-block;
+		width:170px;
+		height:40px;
+	}
+	body{
+		font-family: arial;
+	background: #0E1818;
+	color: white;
+margin-top: 120px;
+}
+.product_list_link{
+	color:blue;
+	font-size:25px;
+}
+.messagebox{
+		position:absolute;
+		margin-top:150px;
+		margin-left: 600px;
+		color: black;
+		border: 1px solid black;
+		width: 300px;
+		
+		background: white;
+	}
+
+.inputbox{
+	border:none;
+	background:black;
+	cursor:white;
+	color:white;
+	width: 250px;
+	box-sizing: content-box;
+	padding: 6px;
+	font-size: 25px;
+	border-radius: 10px;
+}
+table{
+	font-size: 25px;
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+tr.spaceUnder>td {
+  padding-bottom: 0.3em;
+}
+.inputbox:focus{
+	outline: none;
+}
+
+.refresh:hover{
+	opacity: 0.7;
+}
+.refresh{
+	background: #940000;
+	border: none;
+	width: 100px;
+	color: white;
+	font-size: 22px;
+	padding: 7px;
+	border-radius: 10px;
+}	
+		
+.add{
+	background: darkcyan;
+	border: none;
+	width: 100px;
+	color: white;
+	padding: 7px;
+	font-size: 22px;
+	border-radius: 10px;
+}
+	.add:hover{
+		opacity: 0.8;
+		cursor: pointer;
+	}

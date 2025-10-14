@@ -1,0 +1,81 @@
+
+  .table tr td {
+    padding-left: 10px;
+    padding-right: 10px;
+    border:1px solid grey;
+  }
+
+.pagination{
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  margin: 50px 100px 50px 100px;
+}
+.pagination a{
+  color: blue;
+  user-select: none;
+  width: 40px;
+  border-radius: 10px;
+  border: 1px solid grey;
+  text-decoration: none;
+  font-size: 40px;
+}
+.pagination .page-info{
+  width: 350px;
+  color: blue;
+  font-size: 35px;
+  user-select: none;
+}
+.pagination .button{
+  color: grey;
+  width: 40px;
+  user-select: none;
+  border-radius: 10px;
+  border: 1px solid grey;
+  text-decoration: none;
+  font-size: 40px;
+}
+  .table{
+      border-collapse: collapse;
+      width:100%;
+  }
+  .inputbox{
+    background: transparent;
+    color:white;
+    border:none;
+    font-size: 20px;
+    width:120px;
+  }
+  body{
+    margin-right:10px;
+    font-size:23px;
+    margin-top: 100px;
+    font-family: arial;
+  background: #050D23;
+  color: white;
+  }
+  div .input{
+    width:200px;
+    background: black;
+    border:none;
+    color:white;
+    border-radius: 20px;
+    padding:10px;
+  }
+  button {
+    background: transparent;
+color:white;
+    padding: 6px;
+  }
+  .save{
+    margin-left: 20px;
+    color: white;
+    background:darkgreen;
+    border: none;
+    margin-bottom: 10px;
+    padding:6px;
+  }
+  div .fa-search
+  {
+    color:white;  
+  }

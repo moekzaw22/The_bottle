@@ -1,0 +1,73 @@
+.container-whole{
+ 	display:flex;
+ 	justify-content: center;
+}
+table{}
+ 	table .header td{
+ 		border: 1px dotted grey;
+ 		font-size: 20px;
+ 	}
+ 	table .item td{
+ 		position: relative;
+ 		border: 1px dotted grey;
+
+ 	}
+ 	.product tr td{
+ 		padding:20px;
+ 	}
+ 	body{
+ 		margin-top: 100px;
+ 		font-family: arial;
+	background: #0E1818;
+	color: white;
+ 	}
+ 	.inputbox:focus{
+	outline: none;
+}
+ 	.inputbox{
+ 		padding-left:10px;
+ 		font-size: 36px;
+ 		color:green;
+ 		background:black;
+ 		border:1px solid white;
+ 		width:340px;
+ 		padding:10px;
+ 	}
+ 	.inputbox:hover{
+ 		opacity:0.5;
+ 	}
+ 	.quantity input{
+ 		width:60px;
+ 		font-size: 20px;
+ 		background:black;
+ 		color:white;
+ 		border:1px solid white;
+ 		padding:20px;
+ 		color:green;
+ 	}
+ 	.quantity input:hover{
+ 		background:white;
+ 	}
+ 	.link{
+
+ 		border:none;
+ 		color: black;
+ 		border-radius: 10px;
+ 		background: grey;
+ 		font-size: 25px;
+ 		padding:10px 25px 10px 25px;
+ 		text-decoration: none;
+ 	}
+ 	.link:hover{
+ 		color:white;
+ 		
+ 		background: green;
+ 	}
+ 	.cancel{
+ 		color:red;
+ 		text-decoration: none;
+ 		font-size:20px;
+ 	}
+ 	.cancel:hover{
+ 		opacity:0.6;
+ 	}
