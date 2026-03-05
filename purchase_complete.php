@@ -1,35 +1,22 @@
 <?php
 $connect=mysqli_connect("localhost","root","","the_bottle_database");
   
+$select="SELECT pr.status,pr.Buy_Quantity,p.Quantity, p.Product_id,pr.Product_id FROM purchase pr JOIN product p ON pr.Product_id=p.Product_id WHERE
+			 	pr.status='Unconfirmed'";
 
-
-if(isset($_GET['PID'])) 
-{
-	$PID=$_GET['PID'];
-
- $purchase_Query="UPDATE purchase p,product pr
-			 SET 
-			 p.status='Confirmed'
-			 WHERE
-			 p.status='Unconfirmed' AND pr.Product_id=p.Product_id";
-
-	$purchase_ret=mysqli_query($connect,$purchase_Query);
-	if ($purchase_ret) {
-
-				$select_product="SELECT * FROM product p, purchase pr WHERE p.Product_id=pr.Product_id AND pr.purchaseid=$PID";
-				$select_query=mysqli_query($connect,$select_product);
-				$product_array=mysqli_fetch_array($select_query);
-				$quantity=$product_array['Quantity'];
-				$product_id=$product_array['Product_id'];
-				$buyquantity=$product_array['Buy_Quantity'];
-				$update="UPDATE product SET Quantity = Quantity - $buyquantity WHERE Product_id='$product_id'";
-			
-
+	$select_query=mysqli_query($connect,$select);
+	if ($select_query && mysqli_num_rows($select_query) > 0) {
+		while ($row = mysqli_fetch_assoc($select_query)) {
+			$product_id = $row['Product_id'];
+			$buyquantity = $row['Buy_Quantity'];
+			 $update="UPDATE product SET Quantity = Quantity - $buyquantity WHERE Product_id='$product_id'";
 			$update_query=mysqli_query($connect,$update);
-			echo "<script>window.location='purchase.php';</script>";
-	
-exit();
+		}
+		mysqli_query($connect, "UPDATE purchase SET status ='Confirmed' WHERE status='Unconfirmed'");	
+		
+			 echo "<script>window.location='purchase.php';</script>";
+    exit();
+} else {
+    echo "<script>alert('No pending sale found.'); window.location='purchase.php';</script>";
 }
-}
-
 ?>

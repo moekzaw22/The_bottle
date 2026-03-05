@@ -1,40 +1,24 @@
-.container-whole{
- 	display:flex;
- 	justify-content: center;
-}
-table{}
- 	table .header td{
- 		border: 1px dotted grey;
- 		font-size: 20px;
- 	}
- 	table .item td{
- 		position: relative;
- 		border: 1px dotted grey;
 
- 	}
- 	.product tr td{
- 		padding:20px;
- 	}
- 	body{
- 		margin-top: 100px;
- 		font-family: arial;
-	background: #0E1818;
-	color: white;
- 	}
- 	.inputbox:focus{
-	outline: none;
-}
+.table-1{width:100%;border-collapse: collapse;top:10px;}
+.detail-sale{position:absolute;left:40%;top:20%}
+.table-1 th{background:#222;color:white;padding:5px;border: 1px dotted grey;font-size: 20px;}
+.table-1 td{margin:5px;padding:10px;border: 1px dotted grey;}
+.table-1 .item:nth-child(even) { background:#f2f2f2 }
+.table-1 .item:hover{background: #e6f2ff}
+.action-btn{margin-bottom: 5%}
+ .product tr td{padding:20px;}
+ body{font-family: arial;}
+ .inputbox:focus{border:1px solid green;outline: none;}
  	.inputbox{
  		padding-left:10px;
  		font-size: 36px;
- 		color:green;
- 		background:black;
- 		border:1px solid white;
+ 		color:black;
+ 		border:1px solid grey;
  		width:340px;
  		padding:10px;
  	}
  	.inputbox:hover{
- 		opacity:0.5;
+ 		
  	}
  	.quantity input{
  		width:60px;
@@ -46,28 +30,23 @@ table{}
  		color:green;
  	}
  	.quantity input:hover{
- 		background:white;
- 	}
- 	.link{
-
- 		border:none;
- 		color: black;
- 		border-radius: 10px;
- 		background: grey;
- 		font-size: 25px;
- 		padding:10px 25px 10px 25px;
- 		text-decoration: none;
- 	}
- 	.link:hover{
- 		color:white;
  		
- 		background: green;
  	}
- 	.cancel{
- 		color:red;
- 		text-decoration: none;
- 		font-size:20px;
+ 
+ 	.link{
+    padding: 8px 18px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: 0.2s ease;
+    color:white;
+}
+ 	.link.con{background:green;}
+ 	.link.can{background:red}
+ 
+ .link:hover{
+ 		opacity: 0.5;
  	}
- 	.cancel:hover{
- 		opacity:0.6;
- 	}
+ 	

@@ -1,10 +1,5 @@
 
-  .table tr td {
-    padding-left: 10px;
-    padding-right: 10px;
-    border:1px solid grey;
-  }
-
+/*
 .pagination{
   display: flex;
   text-align: center;
@@ -34,39 +29,49 @@
   border: 1px solid grey;
   text-decoration: none;
   font-size: 40px;
+}*/
+.container-salereport{} 
+.table{
+    width:100%;
+    border-collapse:collapse;
 }
-  .table{
-      border-collapse: collapse;
-      width:100%;
-  }
-  .inputbox{
+th{
+     background:#222;color:white;
+    color:white;
+    padding:15px;
+    text-align:left;
+}
+td{
+    padding:10px;
+    border-bottom:1px solid #ddd;
+}
+tr:nth-child(even){
+    background:#f9f9f9;
+}
+tr:hover{
+    background:#eaf2ff;
+}
+.sale_information{font-size: 19px;margin:7px}
+.report-info{font-size: 20px;margin:10px;}
+ /* .inputbox{
     background: transparent;
     color:white;
     border:none;
     font-size: 20px;
     width:120px;
-  }
+  }*/
   body{
-    margin-right:10px;
-    font-size:23px;
-    margin-top: 100px;
     font-family: arial;
-  background: #050D23;
-  color: white;
+  
   }
   div .input{
     width:200px;
-    background: black;
-    border:none;
-    color:white;
-    border-radius: 20px;
     padding:10px;
-  }
-  button {
-    background: transparent;
-color:white;
-    padding: 6px;
-  }
+  }div .input:hover{opacity: 0.3s}
+  .btn {
+    padding:10px;color:white;border: none; cursor: pointer; border-radius: 5px; }
+    .btn.search{background:royalblue;}
+    .btn.clear{background:red;}
   .save{
     margin-left: 20px;
     color: white;
@@ -77,5 +82,7 @@ color:white;
   }
   div .fa-search
   {
-    color:white;  
+    color:white;
+    
+    
   }

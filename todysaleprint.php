@@ -1,6 +1,6 @@
 <?php 
 date_default_timezone_set("Asia/Yangon");
-$connect=mysqli_connect("Localhost","root","","the_bottle_database");
+include('connect.php');
 $date=date('Y-m-d');
  $select="SELECT * FROM purchase pr, product p WHERE p.Product_id=pr.Product_id AND status='Confirmed' AND Date='$date' ORDER BY Time ASC";
  $select_query=mysqli_query($connect,$select);

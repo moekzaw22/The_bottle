@@ -1,20 +1,17 @@
 <?php
 date_default_timezone_set("Asia/Yangon");
 include('navbar.php');
- $connect=mysqli_connect("Localhost","root","","the_bottle_database");
+ include('connect.php');
  $date=date('Y-m-d');
  $select="SELECT * FROM purchase pr, product p WHERE p.Product_id=pr.Product_id AND status='Confirmed' AND Date='$date' ORDER BY Time DESC";
  $select_query=mysqli_query($connect,$select);
  $count=mysqli_num_rows($select_query);
- $result= mysqli_query($connect,"SELECT SUM(totalprice) AS totalsumpri FROM purchase WHERE Date='$date' And status='Confirmed'");
- $result1=mysqli_query($connect,"SELECT SUM(Buy_Quantity) As totalqty FROM purchase WHERE Date='$date' And status='Confirmed'");
- $result2= mysqli_query($connect,"SELECT SUM(profit) AS totalsum FROM purchase WHERE Date='$date' And status='Confirmed'");
+ $result= mysqli_query($connect,"SELECT SUM(totalprice) AS totalsumpri, SUM(Buy_Quantity) AS totalqty FROM purchase WHERE Date='$date' And status='Confirmed'");
+ 
  $row = mysqli_fetch_assoc($result); 
- $row1=mysqli_fetch_assoc($result1);
- $row2 = mysqli_fetch_assoc($result2);
+ 
  $sum = $row['totalsumpri'];
- $totalsale = $row1['totalqty'];
- $profit = $row2['totalsum'];
+ $totalsale = $row['totalqty'];
  $total_sum = 0;
  $Quantity = 0;
 ?>
@@ -25,91 +22,60 @@ include('navbar.php');
 	<meta charset="utf-8">
 	<title></title>
     <style type="text/css">
-  .table tr td {
-    padding-left: 10px;
-    padding-right: 10px;
-    border:1px solid grey;
-  }
-  .table{
-      border-collapse: collapse;
-      width:100%;
-  }
-  .inputbox{
-    background: transparent;
-    color:white;
-    border:none;
-    font-size: 20px;
-  }
-  body{
-      font-size:23px;
-    margin-right:10px;
-    margin-top: 110px;
-    font-family: arial;
-  background: #0E1818;
-  color: white;
-  }
-  div .input{
-    width:200px;
-    background: black;
-    border:none;
-    color:white;
-    border-radius: 20px;
-    padding:10px;
-  }
-  button{
-    background:transparent;
-    padding:6px;
-  }
-  div .fa-search
-  {
-    color:white;
-    
-    
-  }
- </style>
+body { font-family: Arial;margin:0; }
+.report-summary { display:flex; gap:100px; margin:20px }
+.report-summary div { font-size:20px; }
+.table { width:100%; border-collapse: collapse; margin-top:20px; }
+.table th, .table td { border:0.4px solid grey; padding:8px; text-align:center; }
+.table th { background:#343a40;color:white }
+.table tr:nth-child(even) { background:#f2f2f2 }
+.table tr:hover{background: #e6f2ff}
+#btnsubmit { padding:10px; font-size:16px; border:none;background:#005F02;color:white; border-radius:5px; cursor:pointer; }
+#btnsubmit:hover {opacity: 0.5}
+.save { background:#28a745; color:white; }
+.print { padding:5px;font-size:16px;border:none;border-radius:5px;margin:5px;background:#007bff; color:white; }
+a { color:#f0f0f0; text-decoration:none; }
+</style>
 </head>
 <body>
-  <form action="todaysalerp.php" method="POST">
-  <br>
-  <div class="tdyrpt">
-   <table style="margin-bottom:20px;margin-left:10px">
-    <tr>
-    <td colspan="0">Date / </td>
-    <td><input class="inputbox" type="text" value="<?php echo $date ?>" name="txtdate"><td> 
-      <td>Total Amout</td>
-      <td>=</td>
-      <td><span><?php echo number_format($sum) ?> Kyats</span>
-      <input type="text" name="txtprice" value="<?php echo $sum ?>" class="inputbox" hidden/></td>
-      <input type="text" name="txtprofit" value="<?php echo $profit ?>" hidden/>
-</tr>
-  <tr>    
-     <td colspan=3><?php echo $totalsale ?> Items Sold today</td>
-  </tr>
-<tr>
-  <td><input type="button" onclick="printthis()" value="Print" name=""></td>
-</tr>
-<div style="position: absolute;right:10px;top:150px;"><input type="text" name="txtitem" placeholder="Item" style="padding:5px" autofocus><input type="submit" name="btnitem">
+
+<form method="POST">
+<div class="report-summary">
+    <div>Date: <strong><?php echo date('d M Y', strtotime($date)) ?></strong></div>
+    <div>Total Amount: <strong><?php echo number_format($sum) ?> Kyats</strong></div>
+    <div>Items Sold: <strong><?php echo $totalsale ?></strong></div>
 </div>
-  </table>
-  </div>
-  <script type="text/javascript">
-  function printthis(){
-    window.location="todysaleprint.php";
-  }
-</script>
-<div id="ptthis">
-	<table class="table">
-  <tr>
-    <td>Purchase ID</td>
-    <td>Product Name</td>
-    <td>Quantity</td>
-    <td>Total price</td>
-    <td>Time</td>
-  </tr>		
+
+<input type="hidden" name="txtprice" value="<?php echo $sum ?>">
+<input type="hidden" name="txtprofit" value="<?php echo $profitsum ?>">
+<input type="hidden" name="txtdate" value="<?php echo $date ?>">
+
+<div>
+    <!-- <input type="submit" class="save" name="btnsave" value="Save Daily Report" onclick="return confirm('Save to daily report?')"> -->
+    <button type="button" class="print" onclick="window.print()">Print Report</button>
+</div>
+</form>
+<form method="GET">
+<div style="position: absolute;right:10px;margin:10px;top:14%">
+    <input type="text" name="txtitem" placeholder="Item" style="padding:10px" autocomplete="off" autofocus>
+    <input type="submit" id="btnsubmit" name="btnitem"> 
+</div>
+ </form>
+<table class="table">
+<thead>
+<tr>
+    <th>Purchase ID</th>
+    <th>Product Name</th>
+    <th>Quantity</th>
+    <th>Total Price</th>
+    <th>Time</th>
+</tr>
+</thead>
+<tbody>
 <?php
 
-if (isset($_POST['btnitem'])) {
-  $item = $_POST['txtitem'];
+if (isset($_GET['btnitem'])) {
+  $item = $_GET['txtitem'];
   $select = "SELECT purchaseid, pr.Product_id, Product_name, Time, sp_price, totalprice, Buy_Quantity FROM purchase pr, product p WHERE p.Product_id=pr.Product_id AND status='Confirmed' AND Date='$date' AND p.Product_name LIKE '$item%' ORDER BY Time DESC";
   $select_query1=mysqli_query($connect,$select);
   $count1 = mysqli_num_rows($select_query1);
@@ -141,13 +107,13 @@ if ($count1 > 0) {
     </tr>
   <?php
 }
-echo "Total Sum For (",$productname,") x ",$Quantity," is ",$total_sum,",   ";
+echo "<br>Total Sum For (",$productname,") x ",$Quantity," is <strong>",number_format($total_sum),"</strong>";
 }
 elseif($count < 1) {
   echo "cannot find product with product name = ",$productname;
 }
  
-}
+}//if end
 
 
 else{
@@ -174,15 +140,10 @@ else{
   <?php
  }
 }
- ?>
- </table>
- </div>
- </form>
+?>
+</tbody>
+</table>
+
 
 </body>
 </html>
-
-
-
-
-

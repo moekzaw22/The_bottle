@@ -1,10 +1,13 @@
 <?php
 session_start();
 
-if(empty($_SESSION['Username'])){
-	echo "<script>window.location = 'admin_login.php'</script>";
+// If no username in session, go to login
+if (empty($_SESSION['Username'])) {
+    header("Location: admin_login.php");
+    exit;
 }
-else{
-	echo "<script>window.location = 'admin_product_list.php'</script>";
-}
+
+// If user is logged in, go to product list
+header("Location: admin_product_list.php");
+exit;
 ?>

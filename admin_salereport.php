@@ -1,15 +1,11 @@
 <?php 
-$connect=mysqli_connect("Localhost","root","","the_bottle_database");
+include('connect.php');
 date_default_timezone_set("Asia/Yangon");
 $sum='';
-$itemperpage = 100;
 $profit =0;
-if (isset($_GET["page"])) {    
-    $page = $_GET["page"];    
-}
-else { 
-    $page = 1;    
-}  ini_set('display_errors', 0);
+$sum=0;
+$total_sale=0;
+  //ini_set('display_errors', 0);
 include('admin_navbar.php');
  ?>
 
@@ -25,34 +21,33 @@ include('admin_navbar.php');
 
  <style type="text/css">
  </style>
-<form action="admin_salereport.php" method="POST">
- <div style="float:right;padding-top: 12px;padding-bottom: 10px">
-            <input type="text" name="txtitem" class="input" placeholder="Find Item" value="<?php echo isset($_POST['txtitem']) ? $_POST['txtitem'] : ''; ?>">
-            <input type="date" name="txtdate1" class="input" value="<?php echo isset($_POST['txtdate1']) ? $_POST['txtdate1'] : ''; ?>">
-            <input type="date" name="txtdate2" class="input" value="<?php echo isset($_POST['txtdate2']) ? $_POST['txtdate2'] : ''; ?>">
-            <button class="" name ="btnsearch" type="submit"><i class="fas fa-search fa-1x"></i></button><button class="" type="button" onclick="clearForm()">Clear</button>
+<div class="container-salereport">
+    <form action="admin_salereport.php" method="GET">
+        <div style="float:right;padding-top: 12px;padding-bottom: 10px">
+            <input type="text" name="txtitem" class="input" placeholder="Find Item" value="<?php echo isset($_GET['txtitem']) ? $_GET['txtitem'] : ''; ?>">
+            <input type="date" name="txtdate1" class="input" value="<?php echo isset($_GET['txtdate1']) ? $_GET['txtdate1'] : ''; ?>">
+            <input type="date" name="txtdate2" class="input" value="<?php echo isset($_GET['txtdate2']) ? $_GET['txtdate2'] : ''; ?>">
+            <button class="btn search" name ="btnsearch" type="submit" >Search</button>
+            <button class="btn clear" onclick="clearForm()">Clear</button>
         </div>
+    </div>
   <br>
  	<table class="table">
  		<tr>
- 			<td>Id</td>
-      <td>Date</td>
-      <td>Time</td>
- 			<td>Product Name</td>
- 			<td>Buy Quantity</td>
- 			<td>Total Price</td>
-      <td>Profit</td>
- 			
- 			
-      <td>Action</td>
+ 			<th>Id</th>
+            <th>Date</th>
+            <th>Time</th>
+ 			<th>Product Name</th>
+ 			<th>Buy Quantity</th>
+ 			<th>Total Price</th>
+            <th>Profit</th>
+ 			<th>Action</th>
  		</tr>
   <?php
-if (isset($_POST['btnsearch'])) {
-  
- 
-                $searchitem = $_POST['txtitem'];
-                $searchdate1 = $_POST['txtdate1'];
-                $searchdate2 = $_POST['txtdate2'];
+if (isset($_GET['btnsearch'])) {
+    $searchitem = $_GET['txtitem'];
+    $searchdate1 = $_GET['txtdate1'];
+    $searchdate2 = $_GET['txtdate2'];
 
                 // Sanitize inputs
                 $searchitem = mysqli_real_escape_string($connect, $searchitem);
@@ -60,113 +55,147 @@ if (isset($_POST['btnsearch'])) {
                 $searchdate2 = mysqli_real_escape_string($connect, $searchdate2);
 // date 1 and 2 not null                
   if ($searchitem == null && $searchdate1 != null && $searchdate2 != null) {
-    $select_item = "SELECT * FROM product p, purchase pr WHERE p.Product_id=pr.Product_id AND 
+        $select_item = "SELECT * FROM product p, purchase pr WHERE p.Product_id=pr.Product_id AND 
                     pr.Date BETWEEN '$searchdate1' AND '$searchdate2' AND status='Confirmed'";
                     $item_query = mysqli_query($connect, $select_item);
                     $item_count = mysqli_num_rows($item_query);
-        $result = mysqli_query($connect, "SELECT SUM(totalprice) AS totalsum FROM purchase 
-                  WHERE Date BETWEEN '$searchdate1' AND '$searchdate2' AND status='Confirmed'");
-                    $row = mysqli_fetch_assoc($result);
-                    $sum = $row['totalsum'];
-                    echo "Total Amount = " . number_format($sum) . " ks<br>";
-       $result2 = mysqli_query($connect, "SELECT SUM(profit) AS totalsum FROM purchase WHERE Date BETWEEN '$searchdate1' AND '$searchdate2' AND status='Confirmed'");
-if ($result2) {
-    $row2 = mysqli_fetch_array($result2);
-    if ($row2) {
-        $profit = $row2['totalsum'];
-        echo "Profit: " . number_format($profit). " Ks";
-    } else {
-        echo "No profit data available.";
-    }
-} else {
+                     echo "Searching Sale Between ".DATE('d M Y',strtotime($searchdate1)). " AND " .Date('d M Y',strtotime($searchdate2));
+        $result = mysqli_query($connect, "SELECT SUM(totalprice) AS totalsum,SUM(Buy_Quantity) AS 
+                totalsale, SUM(profit) AS profit FROM purchase WHERE Date BETWEEN '$searchdate1' AND '$searchdate2' AND status='Confirmed'");
+                 
+                   
+    
+if (!$result) {
+    // Query failed
     echo "Error: " . mysqli_error($connect);
-}
+} else {
+    // Query successful
+
+    $row = mysqli_fetch_assoc($result);
+    if (!$row) {
+        // No rows returned
+        echo "No result found.";
+    } else {
+        // Data fetched successfully
+        $sum = $row['totalsum'];
+        $profit=$row['profit'];
+         $total_sale = $row['totalsale'];
+
+    }
+  } 
  }
   elseif ($searchitem == null && $searchdate1 != null && $searchdate2 == null) {
-                   $select_item = "SELECT * FROM product p, purchase pr WHERE p.Product_id=pr.Product_id AND pr.Date='$searchdate1' AND status='Confirmed'";
+                  $select_item = "SELECT * FROM product p, purchase pr WHERE p.Product_id=pr.Product_id AND pr.Date='$searchdate1' AND status='Confirmed'";
                      $item_query = mysqli_query($connect, $select_item);
                      if ($item_query) {
-                         echo "Executing searchdate 1 not null";
+                         echo "Searching Date = ".DATE('d M Y',strtotime($searchdate1));
                      }
-                      $result = mysqli_query($connect, "SELECT SUM(totalprice) AS totalsum FROM purchase WHERE Date = '$searchdate1' AND status='Confirmed'");
+                      $result = mysqli_query($connect, "SELECT SUM(totalprice) AS totalsum,SUM(Buy_Quantity) AS totalsale,SUM(profit) AS profit FROM purchase WHERE Date = '$searchdate1' AND status='Confirmed'");
 
-                    $row = mysqli_fetch_assoc($result);
-                    $sum = $row['totalsum'];
+        if (!$result) {
+    // Query failed
+    echo "Error: " . mysqli_error($connect);
+} else {
+    // Query successful
+    $row = mysqli_fetch_assoc($result);
+    if (!$row) {
+        // No rows returned
+        echo "No result found.";
+    } else {
+        // Data fetched successfully
+        $sum = $row['totalsum'];
+        $profit=$row['profit'];
+         $total_sale = $row['totalsale'];
 
-                    echo "Total Amount = " . number_format($sum) . " ks<br>";
+    }
+              } 
                   }
 elseif ($searchitem != null && $searchdate1 != null && $searchdate2 != null) {
     $select_item = "SELECT * FROM product p, purchase pr 
                     WHERE p.Product_id = pr.Product_id 
-                    AND pr.Product_id = 'searchitem'
+
+                    AND (pr.Product_id = '$searchitem' OR p.Product_name LIKE '%$searchitem%' OR p.Product_Code = '$searchitem')
                     AND pr.Date BETWEEN '$searchdate1' AND '$searchdate2' 
                     AND status='Confirmed'";
 
     $item_query = mysqli_query($connect, $select_item);
      if ($item_query) {
-                         echo "Executing searchdate 1 ,2 and item not null";
-                     }
+            echo "Searching Item = ". $searchitem." Between ".DATE('d M y',strtotime($searchdate1)). " AND " .Date('d M Y',strtotime($searchdate2));
+        }
      $item_count = mysqli_num_rows($item_query);
 
-    $result = "SELECT SUM(totalprice) AS totalsum 
+    $result = mysqli_query($connect,"SELECT SUM(totalprice) AS totalsum, SUM(Buy_Quantity) AS totalsale, SUM(profit) AS profit
            FROM product p, purchase pr 
-           WHERE pr.Date = '$searchdate1' 
+           WHERE pr.Date BETWEEN '$searchdate1' AND '$searchdate2' 
            AND pr.Product_id = p.Product_id 
            AND p.Product_name LIKE '%$searchitem%' 
-           AND status='Confirmed'";
+           AND status='Confirmed'");
 
-$result_query = mysqli_query($connect, $result);
-
-if (!$result_query) {
+if (!$result) {
     // Query failed
     echo "Error: " . mysqli_error($connect);
 } else {
     // Query successful
-    $row = mysqli_fetch_assoc($result_query);
+    $row = mysqli_fetch_assoc($result);
     if (!$row) {
         // No rows returned
         echo "No result found.";
     } else {
         // Data fetched successfully
         $sum = $row['totalsum'];
-        echo "</br>Total Amount = " . number_format($sum) . " ks<br>";
+        $profit=$row['profit'];
+         $total_sale = $row['totalsale'];
+
     }
   } 
     }
-     elseif ($searchitem != null && $searchdate1 != null && $searchdate2 == null){
+    elseif ($searchitem != null && $searchdate1 != null && $searchdate2 == null){
+        echo "Searching Product = ". $searchitem . " at Date = ". Date('d M Y',strtotime($searchdate1));
    //item and date 1
-    $select_item = "SELECT * FROM product p, purchase pr WHERE p.Product_id=pr.Product_id AND 
-                    pr.Product_id = 'searchitem' OR p.Product_id = '$searchitem' AND pr.Date='$searchdate1' 
+     $select_item = "SELECT * FROM product p, purchase pr WHERE p.Product_id=pr.Product_id AND 
+                    (p.Product_id = '$searchitem' OR p.Product_name LIKE '%$searchitem%' OR p.Product_Code ='$searchitem') AND
+                    pr.Date='$searchdate1'
                     AND status='Confirmed'";
     $item_query = mysqli_query($connect, $select_item);
      $item_count = mysqli_num_rows($item_query);
-
-    $result = "SELECT SUM(totalprice) AS totalsum 
+   $result = mysqli_query($connect,"SELECT SUM(totalprice) AS totalsum, SUM(Buy_Quantity) AS totalsale, SUM(profit) AS profit
            FROM product p, purchase pr 
            WHERE pr.Date = '$searchdate1' 
            AND pr.Product_id = p.Product_id 
            AND p.Product_name LIKE '%$searchitem%' 
-           AND status='Confirmed'";
-
-$result_query = mysqli_query($connect, $result);
-
-if (!$result_query) {
+           AND status='Confirmed'");
+if (!$result) {
     // Query failed
     echo "Error: " . mysqli_error($connect);
 } else {
     // Query successful
-    $row = mysqli_fetch_assoc($result_query);
+
+    $row = mysqli_fetch_assoc($result);
     if (!$row) {
         // No rows returned
         echo "No result found.";
     } else {
         // Data fetched successfully
         $sum = $row['totalsum'];
-        echo "</br>Total Amount = " . number_format($sum) . " ks<br>";
+        $profit=$row['profit'];
+         $total_sale = $row['totalsale'];
+
     }
   } 
     }
-    if ($item_query) {       
+    if (mysqli_num_rows($item_query) >0 ) { 
+    if ($sum || $total_sale) {
+        $total_amount = $sum ?? 0;
+        $total_profit = $profit ?? 0;
+        $total_sales = $total_sale ?? 0;
+}
+    echo "<div class='sale_information'>
+            Total Amount: " . number_format($sum) . " Ks /
+            Total Profit: " . number_format($profit) . " Ks /
+            Total Sale: " . number_format($total_sale) . "
+          </div>";
+
+        
         $item_count = mysqli_num_rows($item_query);
         echo "</br>Number of rows returned: $item_count<br>";
         if ($item_count > 0) {

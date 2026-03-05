@@ -1,186 +1,181 @@
-x<?php
-date_default_timezone_set("Asia/Yangon");
+<?php
 include('admin_navbar.php');
-$connect=mysqli_connect("Localhost","root","","the_bottle_database");
-   $date=date('Y-m-d');
-  $select="SELECT Product_name,pr.Product_id,purchaseid, totalprice, Buy_Quantity,profit,sp_price, Time FROM purchase pr, product p WHERE p.Product_id=pr.Product_id AND status='Confirmed' AND Date='$date' ORDER BY Time DESC";
- $select_query=mysqli_query($connect,$select);
- $count=mysqli_num_rows($select_query);
+include('connect.php');
+$date = date('Y-m-d');
 
-$result= mysqli_query($connect,"SELECT SUM(totalprice) AS totalsum FROM purchase WHERE Date='$date' And status='Confirmed'");
-$result1=mysqli_query($connect,"SELECT SUM(Buy_Quantity) As totalsum FROM purchase WHERE Date='$date' And status='Confirmed'");
-$result2= mysqli_query($connect,"SELECT SUM(profit) AS totalsum FROM purchase WHERE Date='$date' And status='Confirmed'");
-$row = mysqli_fetch_assoc($result); 
-$row1=mysqli_fetch_assoc($result1);
-$row2 = mysqli_fetch_assoc($result2);
-$sum = $row['totalsum'];
-$totalsale = $row1['totalsum'];
-$profit = $row2['totalsum'];
+// Fetch purchases for today
+$select = "
+    SELECT p.Product_name, pr.Product_id, pr.purchaseid, pr.totalprice,
+           pr.Buy_Quantity, pr.profit, p.sp_price, pr.Time
+    FROM purchase pr
+    JOIN product p ON p.Product_id = pr.Product_id
+    WHERE pr.status='Confirmed' AND pr.Date='$date'
+    ORDER BY pr.Time DESC
+";
+$select_query = mysqli_query($connect, $select);
+$count = mysqli_num_rows($select_query);
+
+// Fetch sums
+$total = mysqli_fetch_assoc(mysqli_query($connect,"SELECT SUM(totalprice) AS sum FROM purchase WHERE Date='$date' AND status='Confirmed'"));
+$items = mysqli_fetch_assoc(mysqli_query($connect,"SELECT SUM(Buy_Quantity) AS total_items FROM purchase WHERE Date='$date' AND status='Confirmed'"));
+$profit = mysqli_fetch_assoc(mysqli_query($connect,"SELECT SUM(profit) AS total_profit FROM purchase WHERE Date='$date' AND status='Confirmed'"));
+
+$sum = $total['sum'] ?? 0;
+$totalsale = $items['total_items'] ?? 0;
+$profitsum = $profit['total_profit'] ?? 0;
+
+// Save daily report
 if (isset($_POST['btnsave'])) {
-  $amount=$_POST['txtprice'];
-  $profit1 =$_POST['txtprofit'];
-  $date=$_POST['txtdate'];
-  $time=date("H:i:s");
- $insert="INSERT INTO daily_report value('','$amount','$profit1','$date','$time')";
-  $insert_query=mysqli_query($connect,$insert);
-  if ($insert_query) {
-    echo "<script>alert('Daily Report SAVED!')</script>";
-  }
-  else{
-     echo "<script>alert('Date already Exist!')</script>";
-  }
+    $amount = mysqli_real_escape_string($connect, $_POST['txtprice']);
+    $profit1 = mysqli_real_escape_string($connect, $_POST['txtprofit']);
+    $date_post = mysqli_real_escape_string($connect, $_POST['txtdate']);
+    $time = date("H:i:s");
+
+    $insert = "INSERT INTO daily_report VALUES ('', '$amount', '$profit1', '$date_post', '$time')";
+    if (mysqli_query($connect, $insert)) {
+        echo "<script>alert('Daily Report SAVED!');</script>";
+    } else {
+        echo "<script>alert('Date already exists!');</script>";
+    }
 }
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-
-  <meta charset="utf-8">
-  <title></title>
+<meta charset="utf-8">
+<title>Today's Sales Report</title>
+<style>
+body { font-family: Arial; margin:0; }
+.report-summary { display:flex; gap:50px; margin:20px; }
+.report-summary div { font-size:20px; }
+.table { width:100%; border-collapse: collapse; margin-top:20px; color:white; }
+.table th, .table td { border:1px solid grey;color:black; padding:8px; text-align:center; }
+.table th { background:#222;color:white }
+.table tr:nth-child(even) { background:lightgrey; }
+button { padding:8px 15px; font-size:16px; border:none; border-radius:5px; cursor:pointer; }
+.save { background:#28a745; color:white; }
+.remove-btn{color:white;background:red;padding:5px;border-radius:5px}
+.remove-btn:hover{opacity: 0.4;text-decoration: none;cursor:pointer}
+.print { background:#007bff; color:white; }
+a { color:#f0f0f0; text-decoration:none; }
+a:hover { text-decoration:underline; }
+</style>
 </head>
 <body>
-  <style type="text/css"> 
-  .table tr td {
-    padding-left: 10px;
-    padding-right: 10px;
-    border:1px solid grey;
-  }
-  .table{
-      border-collapse: collapse;
-      width:100%;
-      position: absolute;
-      top: 230px;
-  }
-  .inputbox{
-    background: transparent;
-    color:white;
-    border:none;
-    font-size: 20px;
-  
-  }
-  .save{
-    
-   }
-  body{
-      font-size:23px;
-  
-    margin-right:10px;
-    margin-top: 110px;
-    font-family: arial;
-  background: #050D23;
-  color: white;
-  }
-  div .input{
-    width:200px;
-    background: black;
-    border:none;
-    color:white;
-    border-radius: 20px;
-    padding:10px;
-  }
-  button{
-    background:transparent;
-    padding:6px;
-  }
-  .report{
-    position: absolute;
-    top: 120px;
-  }
-  .report-1{
-    position: absolute;
-    top: 150px;
-  }
-  .report-action{
-    position: absolute;
-    top: 180px;
-  }
-  .report-2{
-    top: 120px;
-    position: absolute;
-    left: 320px;
-  }
-  .report-2-1{
-    position: absolute;
-    top: 150px;
-    left: 320px;
-  }
-  div .fa-search{color:white;}</style>
-  <form action="admin_todaysalerp.php" method="POST">
-  <br>
-  <div class="report"> 
-    Date / <input class="inputbox" type="text" value="<?php echo $date ?>"?>
-    </div> 
-   <div class="report-1">
-     Total Amount = <span><?php echo number_format($sum) ?> Kyats</span>
-   </div>
-   <div class="report-2">
-     <?php echo number_format($totalsale) ?> Items Sold today
-   </div>
-   <div class="report-2-1">
-     Profit - <?php echo number_format($profit) ?> ks
-   </div>
-    <input type="text" name="txtprice" value="<?php echo $sum ?>" class="inputbox" hidden/></td>
-      <input type="text" name="txtprofit" value="<?php echo $profit ?>" hidden/>
-    
- <div class="report-action"> <td colspan=2><input type="submit" class="save" name="btnsave" onclick="return confirm('Save to daily report')" value="Save to Daily Report">
-    <input type="button" onclick="printthis()" value="Print" name=""></div>
 
-  <script type="text/javascript">
-  function printthis(){
-    window.location="todysaleprint.php";
-  }
-</script>
-<div id="ptthis">
-  <table class="table">
-  <tr>
-    <td>Purchase ID</td>
-    <td>Product Name</td>
-    <td>Quantity</td>
-    <td>Total price</td>
-    <td>Spent Price</td>
-    <td>Profit</td>
-    <td>Time</td>
-    <td>Action</td>
-  </tr>   
-<?php
- for ($i=0; $i < $count; $i++) { 
-  $array=mysqli_fetch_array($select_query);
-  $sp_price = $array['sp_price'];
-  $purchase_id=$array['purchaseid'];
+<form method="POST">
+<div class="report-summary">
+    <div>Date: <strong><?php echo date('d M Y', strtotime($date)) ?></strong></div>
+    <div>Total Amount: <strong><?php echo number_format($sum) ?> Kyats</strong></div>
+    <div>Items Sold: <strong><?php echo $totalsale ?></strong></div>
+    <div>Profit: <strong><?php echo number_format($profitsum) ?> Kyats</strong></div>
+</div>
+
+<input type="hidden" name="txtprice" value="<?php echo $sum ?>">
+<input type="hidden" name="txtprofit" value="<?php echo $profitsum ?>">
+<input type="hidden" name="txtdate" value="<?php echo $date ?>">
+
+<div>
+    <!-- <input type="submit" class="save" name="btnsave" value="Save Daily Report" onclick="return confirm('Save to daily report?')"> -->
+    <button type="button" class="print" onclick="window.print()">Print Report</button>
+</div>
+</form>
+<form method="GET">
+<div style="position: absolute;right:10px;top:150px;"><input type="text" name="txtitem" placeholder="Item" style="padding:5px" autofocus><input type="submit" name="btnitem"> 
+</div>
+ </form>
+<table class="table">
+<thead>
+<tr>
+    <th>Purchase ID</th>
+    <th>Product Name</th>
+    <th>Quantity</th>
+    <th>Total Price</th>
+    <th>Spent Price</th>
+    <th>Profit</th>
+    <th>Time</th>
+    <th>Action</th>
+</tr>
+</thead>
+<tbody><?php
+
+if (isset($_GET['btnitem'])) {
+  $item = $_GET['txtitem'];
+  $select = "SELECT purchaseid, pr.Product_id, Product_name, Time, sp_price, totalprice, Buy_Quantity FROM purchase pr, product p WHERE p.Product_id=pr.Product_id AND status='Confirmed' AND Date='$date' AND p.Product_name LIKE '$item%' ORDER BY Time DESC";
+  $select_query1=mysqli_query($connect,$select);
+  $count1 = mysqli_num_rows($select_query1);
+ 
+if ($count1 > 0) {
+  # code...
+
+  for ($i=0; $i < $count1; $i++) { 
+  $array=mysqli_fetch_array($select_query1);
+  $purchaseid = $array['purchaseid'];
   $product_id = $array['Product_id'];
   $productname = $array['Product_name'];
+  $time = $array['Time'];
+  $sp_price = $array['sp_price'];
   $totalprice = $array['totalprice'];
   $buyquantity = $array['Buy_Quantity'];
-  $profit = $array['profit'];
-  $spent_price = $totalprice - $profit;
-  
-  
-  $time = $array['Time'];
+  $sp_qty = $sp_price * $buyquantity;
+  $profit = $totalprice - $sp_qty;
+  $total_sum = $total_sum + $totalprice;
+  $Quantity = $Quantity + $buyquantity;
   ?>
     <tr>
-      <td><?php echo $purchase_id  ?></td>
-      <td><?php echo  $product_id ?> - <?php echo $productname ?></td>
+      <td><?php echo $purchaseid ?></td>
+      <td><?php echo $product_id ?> - <?php echo $productname ?></td>
       <td><?php echo $buyquantity ?></td>
       <td><?php echo number_format($totalprice) ?></td>
-      <td><?php echo number_format($spent_price) ?></td>
+      <td><?php echo number_format($sp_qty) ?></td>
       <td><?php echo number_format($profit) ?></td>
       <td><?php echo $time ?></td>
-      <td><a href="itemremovetdysale.php?PID=<?php echo $array['purchaseid'] ?>">Remove</a></td>
+      <td><a class="remove-btn" href="itemremovetdysale.php?PID=<?= $row['purchaseid'] ?>">Remove</a></td>
+      
+      
+      
+    </tr>
+  <?php
+}
+echo "<br>Total Sum For (",$productname,") x ",$Quantity," is <strong>",number_format($total_sum),"</strong>";
+}
+elseif($count < 1) {
+  echo "cannot find product with product name = ",$productname;
+}
+ 
+}//if end
+
+
+else{
+ for ($i=0; $i < $count; $i++) { 
+  $array=mysqli_fetch_array($select_query);
+  $purchaseid = $array['purchaseid'];
+  $product_id = $array['Product_id'];
+  $productname = $array['Product_name'];
+  $time = $array['Time'];
+  $sp_price = $array['sp_price'];
+  $totalprice = $array['totalprice'];
+  $buyquantity = $array['Buy_Quantity'];
+  $sp_qty = $sp_price * $buyquantity;
+  $profit = $totalprice - $sp_qty;
+  ?>
+    <tr>
+      <td><?php echo $purchaseid ?></td>
+      <td><?php echo $product_id ?> - <?php echo $productname ?></td>
+      <td><?php echo $buyquantity ?></td>
+      <td><?php echo number_format($totalprice) ?></td>
+      <td><?php echo number_format($sp_qty) ?></td>
+      <td><?php echo number_format($profit) ?></td>
+      <td><?php echo $time ?></td>
+      <td><a class="remove-btn" href="itemremovetdysale.php?PID=<?= $row['purchaseid'] ?>">Remove</a></td>
       
     </tr>
   <?php
  }
- ?>
- </table>
- </div>
- </form>
-
- 
+}
+?>
+</tbody>
+</table>
 </body>
 </html>
-
-
-
-
-

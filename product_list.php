@@ -13,16 +13,16 @@ include('navbar.php');
 <body>
 <style type="text/css">
 </style>
-	<form action="product_list.php" method="POST">
-  	<div class="mydiv1"><input type="text" name="txtproductname" class="input" placeholder="find something" autofocus="On"><button class="search" name ="btnsubmit" type="submit"><i class="fas fa-search fa-1x"></i></button></div>
+	<form action="product_list.php" method="GET">
+  	<div class="mydiv1"><input type="text" name="txtproductname" class="input" placeholder="find something" autofocus="On" value="<?php echo isset($_GET['txtproductname']) ? $_GET['txtproductname'] : '' ?>"><button class="search-btn" name ="btnsubmit" type="submit">Search</button></div>
 	<br>
 	 <table class="table">
 		<tr>
-			<td>Product ID</td>	
-			<td>Product Code</td>
-			<td>Product Name(milliliter)</td>
-			<td>Quantity</td>
-			<td>Price</td>
+			<th>Product ID</th>	
+			<th>Product Code</th>
+			<th>Product Name(milliliter)</th>
+			<th>Quantity</th>
+			<th>Price</th>
 		</tr>
 		<?php
 		$itemperpage = 60;
@@ -32,16 +32,12 @@ if (isset($_GET["page"])) {
 else { 
     $page = 1;    
 }  
-if(isset($_POST['btnsubmit'])) {
-	$pname=$_POST['txtproductname'];
+if(isset($_GET['btnsubmit'])) {
+	$pname=$_GET['txtproductname'];
 	$query=mysqli_query($connect,"SELECT Product_id,Product_code,Product_name,sp_price, amount, Product_type, Quantity ,Price  FROM product WHERE Product_name LIKE '$pname%' OR Product_id = '$pname' OR Product_code = '$pname' ORDER BY Product_name ASC");
 	$count1=mysqli_num_rows($query);
-	 $lastpage = ceil($count1 / $itemperpage);
-	 if (empty($_POST['txtproductname'])) {
-	 	echo "KeyWord Empty !";
-	 	echo "Showing All result";
-	 }
-	 else{
+
+	 
 		if ($count1 > 0) {
 				for ($i=0; $i < $count1 ; $i++) { 
 				$row=mysqli_fetch_array($query);
@@ -73,22 +69,16 @@ if(isset($_POST['btnsubmit'])) {
 			echo "</tr>";
 		}	
 }
- }
+ 
 else{
-			$select="SELECT  Product_id,Product_code,Product_name, amount, Product_type, Quantity ,Price FROM product ORDER BY Product_name ASC";
+
+			$select="SELECT  Product_id,Product_code,Product_name,sp_price, amount, Product_type, Quantity ,Price FROM product ORDER BY Product_id DESC LIMIT 0,20";
 			$select_query=mysqli_query($connect,$select);
 			$count=mysqli_num_rows($select_query);
-			$lastpage = ceil($count / $itemperpage);
-			$firstpage = ($page-1) * $itemperpage;  
-			$select1= "SELECT * FROM product ORDER BY Product_name ASC LIMIT $firstpage, $itemperpage";
-			$select_query1 = mysqli_query($connect,$select1);
-			$count1 = mysqli_num_rows($select_query1);
-			$addpage= $page + 1;
-			$subpage = $page - 1;
 			
 			
-			for ($i=0; $i < $count1 ; $i++) { 
-				$select_array=mysqli_fetch_array($select_query1);
+			for ($i=0; $i < $count ; $i++) { 
+				$select_array=mysqli_fetch_array($select_query);
 				$product_id=$select_array['Product_id'];	
 				$quantity=$select_array['Quantity'];
 				$price=$select_array['Price'];

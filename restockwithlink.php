@@ -2,6 +2,8 @@
 include('admin_navbar.php');
 $error="";
 $error2="";
+$date_time = date("Y-m-d H:i:s");
+
 $connect=mysqli_connect("Localhost","root","","the_bottle_database");
 if (isset($_GET['PID'])) {
 	$product_id=$_GET['PID'];
@@ -25,12 +27,38 @@ if (isset($_POST['btnadd'])) {
 	$update="UPDATE product SET Quantity =Quantity + $addquantity WHERE Product_id= $product_id";
 	$update_query=mysqli_query($connect,$update);
 	if ($update_query) {
+		$insert_history = mysqli_query($connect, 
+    "INSERT INTO history VALUES ('','Restock','$addquantity','$product_id','$date_time')"
+);if (isset($_GET['return']) && !empty($_GET['return'])) {
+
+    $returnUrl = urldecode($_GET['return']); // 🔥 decode it properly
+
+    header("Location: " . $returnUrl);
+    exit();
+
+} else {
+
+    header("Location: admin_product_list.php");
+    exit();
+}
 		?>
-	<div class="messagebox" id="msgbox">
- 		<label style="background:green;padding: 7px 0px 7px 0px;color: white;font-size: 30px;width: 300px;display:inline-block;">&nbsp;&nbsp;Success!</label>
- 			<label style="padding:17px;display:inline-block;width:100%;font-size:20px;">Product Successful Updated .</label>
- 			<button style="margin-left:240px;font-size:20px;" onclick="window.location='admin_product_list.php'">Ok</button>
- 	</div>	 	
+	<div class="overlay">
+    <div class="messagebox">
+        <div class="message-header">
+            <i class="fas fa-check-circle"></i> Success
+        </div>
+
+        <div class="message-body">
+            Product successfully updated.
+        </div>
+
+        <div class="message-footer">
+            <button onclick="window.location.href='<?= $returnUrl ?>'">
+                OK
+            </button>
+        </div>
+    </div>
+</div>
 		<?php
 	}
 	else{
@@ -108,7 +136,6 @@ if (isset($_POST['btnadd'])) {
 	outline:none;
 }
 .con-1{
-	margin-top:-20px;
 	margin-left: 20px;
 	position: fixed;
 }
@@ -162,7 +189,7 @@ table{
 	font-size: 25px;
 }
 body{
-	margin-top: 140px;
+	
 	font-family: arial;
 	background: #050D23;
 	color: white;
@@ -174,6 +201,60 @@ body{
 .error{
 color: red;
 font-size: 15px;
+}.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.messagebox {
+    width: 400px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    animation: pop 0.3s ease;
+}
+
+.message-header {
+    background: #28a745;
+    color: white;
+    padding: 15px;
+    font-size: 20px;
+    border-radius: 8px 8px 0 0;
+}
+
+.message-body {
+    padding: 20px;
+    font-size: 16px;
+}
+
+.message-footer {
+    padding: 15px;
+    text-align: right;
+}
+
+.message-footer button {
+    padding: 8px 15px;
+    border: none;
+    background: #28a745;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.message-footer button:hover {
+    background: #218838;
+}
+
+@keyframes pop {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
 }
 </style>
  </body>

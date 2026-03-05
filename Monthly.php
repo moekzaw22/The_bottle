@@ -1,17 +1,27 @@
 <?php 
-$connect=mysqli_connect("Localhost","root","","the_bottle_database");
-$select = "SELECT year(Date) AS sltyear,month(Date) AS sltdate,sum(totalprice) AS totalprisum,
-			sum(Buy_Quantity) AS totalitem
-     from purchase WHERE status = 'Confirmed'
-     group by year(Date),month(Date)
-     order by year(Date),month(Date)";
-$select_query = mysqli_query($connect,$select);
-$count = mysqli_num_rows($select_query);
+
+include('connect.php');
+
+$year = $_GET['txtyear'] ?? date("Y");
+$select = "SELECT 
+            YEAR(Date) AS sltyear,
+            MONTH(Date) AS sltdate,
+            SUM(totalprice) AS totalprisum,
+            SUM(Buy_Quantity) AS totalitem
+           FROM purchase
+           WHERE status='Confirmed'";
+           
+if($year != ''){
+    $select .= " AND YEAR(Date) = '$year'";
+}
+
+$select .= " GROUP BY YEAR(Date), MONTH(Date)
+             ORDER BY YEAR(Date), MONTH(Date)";
+             $select_query =mysqli_query($connect,$select);
+             $count =mysqli_num_rows($select_query);
+
 
  ?>
-
-
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -21,34 +31,38 @@ $count = mysqli_num_rows($select_query);
 	<title></title>
 </head>
 <style type="text/css">
-	body{
-			background: #0E1818;
-	color: white;
-			font-family: arial;
-	}
-	.mthdiv-1{
-		position:absolute;
-		top:140px;
-
-	}
-	.mthdiv-1,.Mthrpt{
-		width:99%;
-
-	}
-	.Mthrpt,tr,td{
-		font-size: 23px;
-		border:1px solid grey;
-		border-collapse: collapse;
-	}
+	body{font-family: arial;}
+	.table { width:100%; border-collapse: collapse; }
+.table th, .table td { border:1px solid grey; padding:8px; text-align:center; }
+.table th { background:#343a40;color:white }.table tr:nth-child(even) { background:#f2f2f2 }
+.table tr:hover{background: #e6f2ff}
+.select{width:100px;font-size:20px;display:flex;float:right;text-align: center;margin:10px}
+.label{margin:10px;font-size: 20px;text-align: center;display: flex;float:left}
 </style>
 <body>
 	<div class="mthdiv-1">
-	<table class="Mthrpt">
+	<form method="GET">
+		<label class="label">Showing Year <?php echo $year ?></label>
+		<select class="select" name="txtyear" onchange="this.form.submit()">
+<?php 
+	$year_query = mysqli_query($connect, "SELECT DISTINCT YEAR(Date) AS year FROM purchase WHERE status='Confirmed'");
+	$selected_year = $_GET['txtyear'] ?? date('Y');
+		while ($row = mysqli_fetch_assoc($year_query)) {
+		$year =$row['year'];
+		$is_selected = ($year == $selected_year) ? "selected" : "";
+    	echo "<option value='$year' $is_selected>$year</option>";
+}
+?>
+
+</select>
+	</form>			
+		
+	<table class="table">
 		<tr>
-			<td>Year</td>
-			<td>Month</td>
-			<td>Total Sale (Price)</td>
-			<td>Sale (Items)</td>
+			<th>Year</th>
+			<th>Month</th>
+			<th>Total Sale (Price)</th>
+			<th>Sale (Items)</th>
 		</tr>
 
 		<?php 

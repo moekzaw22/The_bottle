@@ -1,3 +1,4 @@
 <?php 
-$connect=mysqli_connect('localhost','root','','The_bottle_database');
+
+$connect=mysqli_connect('localhost','root','moekhant21202','The_bottle_database');
  ?>
