@@ -1,0 +1,21 @@
+<?php
+include('connect.php');
+ 
+
+
+if(isset($_GET['PID'])) 
+{
+	$PID=$_GET['PID'];
+
+$purchase_Query="DELETE FROM purchase WHERE 
+			 purchaseid=$PID";
+
+	$purchase_ret=mysqli_query($connect,$purchase_Query);
+	
+			
+	echo "<script>window.location='admin_todaysalerp.php';</script>";
+exit();
+
+}
+
+?>

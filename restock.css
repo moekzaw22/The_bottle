@@ -1,0 +1,22 @@
+.inputbox{
+	width: 200px;
+	padding:5px;
+	box-sizing: content-box;
+}
+table{
+	font-family: arial;
+	font-size: 25px;
+}
+body{
+	font-family: arial;
+	background: #0E1818;
+	color: white;
+}
+.list_link{
+	color: white;
+	text-decoration: none;
+}
+.error{
+color: red;
+font-size: 15px;
+}

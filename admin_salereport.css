@@ -1,0 +1,88 @@
+
+/*
+.pagination{
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  margin: 50px 100px 50px 100px;
+}
+.pagination a{
+  color: blue;
+  user-select: none;
+  width: 40px;
+  border-radius: 10px;
+  border: 1px solid grey;
+  text-decoration: none;
+  font-size: 40px;
+}
+.pagination .page-info{
+  width: 350px;
+  color: blue;
+  font-size: 35px;
+  user-select: none;
+}
+.pagination .button{
+  color: grey;
+  width: 40px;
+  user-select: none;
+  border-radius: 10px;
+  border: 1px solid grey;
+  text-decoration: none;
+  font-size: 40px;
+}*/
+.container-salereport{} 
+.table{
+    width:100%;
+    border-collapse:collapse;
+}
+th{
+     background:#222;color:white;
+    color:white;
+    padding:15px;
+    text-align:left;
+}
+td{
+    padding:10px;
+    border-bottom:1px solid #ddd;
+}
+tr:nth-child(even){
+    background:#f9f9f9;
+}
+tr:hover{
+    background:#eaf2ff;
+}
+.sale_information{font-size: 19px;margin:7px}
+.report-info{font-size: 20px;margin:10px;}
+ /* .inputbox{
+    background: transparent;
+    color:white;
+    border:none;
+    font-size: 20px;
+    width:120px;
+  }*/
+  body{
+    font-family: arial;
+  
+  }
+  div .input{
+    width:200px;
+    padding:10px;
+  }div .input:hover{opacity: 0.3s}
+  .btn {
+    padding:10px;color:white;border: none; cursor: pointer; border-radius: 5px; }
+    .btn.search{background:royalblue;}
+    .btn.clear{background:red;}
+  .save{
+    margin-left: 20px;
+    color: white;
+    background:darkgreen;
+    border: none;
+    margin-bottom: 10px;
+    padding:6px;
+  }
+  div .fa-search
+  {
+    color:white;
+    
+    
+  }
