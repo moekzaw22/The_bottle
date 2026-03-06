@@ -1,5 +1,5 @@
 <?php
-$connect=mysqli_connect("localhost","root","","the_bottle_database");
+include('connect.php');
  
 
 

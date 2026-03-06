@@ -11,5 +11,6 @@ if(isset($_POST['product_id'], $_POST['add_quantity'])){
     $row = mysqli_fetch_assoc($res);
 
     echo json_encode(['success'=>true,'product_id'=>$id,'new_quantity'=>$row['Quantity']]);
+    exit();
 }
 ?>

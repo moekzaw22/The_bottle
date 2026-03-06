@@ -2,7 +2,7 @@
 include('navbar.php');
 $error="";
 $error2="";
-$connect=mysqli_connect("Localhost","root","","the_bottle_database");
+include('connect.php');
 if (isset($_POST['btnadd'])) {
 
 	$product_id=$_POST['txtproductid'];

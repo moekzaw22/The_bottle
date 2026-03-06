@@ -12,6 +12,6 @@ if (ini_get("session.use_cookies")) {
     );
 }
 
-header("Location: admin_login.php");
+header("Location: purchase.php");
 exit;
 ?>

@@ -30,25 +30,19 @@
   text-decoration: none;
   font-size: 40px;
 }*/
-.container-salereport{float:right;padding-top: 12px;padding-bottom: 10px} 
- 	body{
- 		font-family: arial;
-	
- 	}
-  .search-result-info{color:white;margin-left:1%}
+
+  body{
+    font-family: arial;
+  
+  }.container-salereport{
+    
+    right:1%;
+    top:20%;
+  }
   div .input{
- 
     padding:10px;
   }div .input:hover{opacity: 0.3s}
-
-  .save{
-    margin-left: 20px;
-    color: white;
-    background:darkgreen;
-    border: none;
-    margin-bottom: 10px;
-    padding:6px;
-  }
+  .search-result-info{color:white;margin-left: 1%}
   div .fa-search
   {
     color:white;

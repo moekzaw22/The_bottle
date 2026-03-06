@@ -1,11 +1,20 @@
 <?php 
 date_default_timezone_set("Asia/Yangon");
 session_start();
+$mode = empty($_SESSION['Username']) ? "guest" : "admin";
 function is_active($page) {
     return basename($_SERVER['PHP_SELF']) === $page ? 'active' : '';
 }
 ?>
-
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="Thebottle_css.css">
+    <title></title>
+</head>
+<body class="<?= $mode ?>">
 <div class="navbar">
 
     <div class="nav-left">
@@ -28,30 +37,31 @@ function is_active($page) {
 
     <div class="nav-right">
         <?php if(empty($_SESSION['Username'])){
-         echo "<a class='btn login' href='admin_login.php'>Login</a>";
+         echo "<a class='btn-log login' href='admin_login.php'>Login</a>";
         } 
         else{ 
-         echo "<a class='btn logout' href='admin_logout.php'>Logout</a>";
+         echo "<a class='btn-log logout' href='admin_logout.php'>Logout</a>";
          }
         ?>
         
     </div>
+
+</body>
+</html>
 <style>
      *{
     margin:0;
+    
     padding:0;
     box-sizing:border-box;
     font-family:Arial, sans-serif;
-}
-body{
-    background-color:<?php echo isset($_SESSION['Username']) ? '#f4f6f9' : 'white'; ?>;
 }
 .navbar{
     display:flex;
     justify-content:space-between;
     align-items:center;
     padding:10px 30px;
-    background:<?php echo isset($_SESSION['Username']) ? '#5a2ca0' : '#2c3e50' ?>;
+    background:<?php echo isset($_SESSION['Username']) ? '#2E1A47' : '#2c3e50' ?>;
 }.logo{cursor:pointer}
 
 .nav-left{
@@ -84,18 +94,18 @@ body{
     color:black;
     font-weight:bold;
 }
-.btn{
+.btn-log{
      color:white;
     text-decoration:none;
     padding:8px 15px;
     border-radius:6px;
     transition:0.3s;
 }
-.nav-right .btn.logout{
+.nav-right .btn-log.logout{
     background:#e74c3c;
    
 }
-.nav-right .btn.login{
+.nav-right .btn-log.login{
     background:#005F02;
 }
 .nav-right .logout:hover{

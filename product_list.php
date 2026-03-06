@@ -14,7 +14,7 @@ include('navbar.php');
 <style type="text/css">
 </style>
 	<form action="product_list.php" method="GET">
-  	<div class="mydiv1"><input type="text" name="txtproductname" class="input" placeholder="find something" autofocus="On" value="<?php echo isset($_GET['txtproductname']) ? $_GET['txtproductname'] : '' ?>"><button class="search-btn" name ="btnsubmit" type="submit">Search</button></div>
+  	<div class="mydiv1"><input type="text" name="txtproductname" id="txtitem" class="input" placeholder="find something" autofocus="On" value="<?php echo isset($_GET['txtproductname']) ? $_GET['txtproductname'] : '' ?>"><button class="search-btn" name ="btnsubmit" type="submit">Search</button></div>
 	<br>
 	 <table class="table">
 		<tr>
@@ -102,6 +102,12 @@ else{
 		 ?>
 	</table>
 </form>
-
+<script>
+	 document.addEventListener("DOMContentLoaded", function() {
+    var input = document.getElementById("txtitem");
+    input.focus();
+    input.select(); // selects the whole value
+});
+</script>
 </body>
 </html>

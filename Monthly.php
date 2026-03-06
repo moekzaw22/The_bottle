@@ -1,7 +1,7 @@
 <?php 
 
 include('connect.php');
-
+include('navbar.php'); 
 $year = $_GET['txtyear'] ?? date("Y");
 $select = "SELECT 
             YEAR(Date) AS sltyear,
@@ -25,18 +25,16 @@ $select .= " GROUP BY YEAR(Date), MONTH(Date)
 <!DOCTYPE html>
 <html>
 <head>
-	<?php include('navbar.php'); ?>
+	
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title></title>
 </head>
 <style type="text/css">
 	body{font-family: arial;}
-	.table { width:100%; border-collapse: collapse; }
-.table th, .table td { border:1px solid grey; padding:8px; text-align:center; }
-.table th { background:#343a40;color:white }.table tr:nth-child(even) { background:#f2f2f2 }
-.table tr:hover{background: #e6f2ff}
-.select{width:100px;font-size:20px;display:flex;float:right;text-align: center;margin:10px}
+	
+.select{width:100px;color:black;font-size:20px;display:flex;float:right;text-align: center;margin:10px}
+.select option{color:black}
 .label{margin:10px;font-size: 20px;text-align: center;display: flex;float:left}
 </style>
 <body>

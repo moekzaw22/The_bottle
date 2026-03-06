@@ -49,14 +49,9 @@ if (isset($_POST['btnsave'])) {
 body { font-family: Arial; margin:0; }
 .report-summary { display:flex; gap:50px; margin:20px; }
 .report-summary div { font-size:20px; }
-.table { width:100%; border-collapse: collapse; margin-top:20px; color:white; }
-.table th, .table td { border:1px solid grey;color:black; padding:8px; text-align:center; }
-.table th { background:#222;color:white }
-.table tr:nth-child(even) { background:lightgrey; }
 button { padding:8px 15px; font-size:16px; border:none; border-radius:5px; cursor:pointer; }
 .save { background:#28a745; color:white; }
-.remove-btn{color:white;background:red;padding:5px;border-radius:5px}
-.remove-btn:hover{opacity: 0.4;text-decoration: none;cursor:pointer}
+
 .print { background:#007bff; color:white; }
 a { color:#f0f0f0; text-decoration:none; }
 a:hover { text-decoration:underline; }
@@ -82,7 +77,9 @@ a:hover { text-decoration:underline; }
 </div>
 </form>
 <form method="GET">
-<div style="position: absolute;right:10px;top:150px;"><input type="text" name="txtitem" placeholder="Item" style="padding:5px" autofocus><input type="submit" name="btnitem"> 
+<div style="position: absolute;right:10px;top:20%">
+    <input type="text" name="txtitem" placeholder="Item" style="padding:5px" autofocus>
+    <input type="submit" class="btn search" name="btnitem"> 
 </div>
  </form>
 <table class="table">
@@ -131,7 +128,7 @@ if ($count1 > 0) {
       <td><?php echo number_format($sp_qty) ?></td>
       <td><?php echo number_format($profit) ?></td>
       <td><?php echo $time ?></td>
-      <td><a class="remove-btn" href="itemremovetdysale.php?PID=<?= $row['purchaseid'] ?>">Remove</a></td>
+      <td><a class="btn remove-btn" href="itemremovetdysale.php?PID=<?= $row['purchaseid'] ?>">Remove</a></td>
       
       
       
@@ -168,7 +165,7 @@ else{
       <td><?php echo number_format($sp_qty) ?></td>
       <td><?php echo number_format($profit) ?></td>
       <td><?php echo $time ?></td>
-      <td><a class="remove-btn" href="itemremovetdysale.php?PID=<?= $row['purchaseid'] ?>">Remove</a></td>
+      <td><a class="btn remove-btn" href="itemremovetdysale.php?PID=<?= $row['purchaseid'] ?>">Remove</a></td>
       
     </tr>
   <?php
