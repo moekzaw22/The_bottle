@@ -2,7 +2,8 @@
 include('admin_navbar.php');
 include('connect.php');
 $date = date('Y-m-d');
-
+$total_sum = 0;
+$Quantity = 0;
 // Fetch purchases for today
 $select = "
     SELECT p.Product_name, pr.Product_id, pr.purchaseid, pr.totalprice,
@@ -135,7 +136,7 @@ if ($count1 > 0) {
     </tr>
   <?php
 }
-echo "<br>Total Sum For (",$productname,") x ",$Quantity," is <strong>",number_format($total_sum),"</strong>";
+echo "<div class='report-summary'>Total Sum For (",$productname,") x ",$Quantity," is ",number_format($total_sum),"</div>";
 }
 elseif($count < 1) {
   echo "cannot find product with product name = ",$productname;
