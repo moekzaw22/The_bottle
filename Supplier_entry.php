@@ -1,6 +1,6 @@
 <?php 
 include('navbar.php');
-$connect=mysqli_connect("Localhost","root","","the_bottle_database");
+include('connect.php');
 if (isset($_POST['btnadd'])) 
 {
 	$name=$_POST['txtsuppliername'];

@@ -3,8 +3,7 @@ include('admin_navbar.php');
 $error="";
 $error2="";
 $date_time = date("Y-m-d H:i:s");
-
-$connect=mysqli_connect("Localhost","root","","the_bottle_database");
+include('connect.php');
 if (isset($_GET['PID'])) {
 	$product_id=$_GET['PID'];
 	$product_query="SELECT * from product Where Product_id='$product_id'";

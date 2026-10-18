@@ -1,18 +1,5 @@
 .mydiv1{float:right;margin:10px}
 /*.table{width: 100%;border-collapse: collapse;padding-right:50px;}*/
-.pagination{display: flex;text-align: center;justify-content: center;margin: 50px 100px 50px 100px;}
-.pagination a{color: blue;user-select: none;width: 40px;border-radius: 10px;border: 1px solid grey;text-decoration: none;font-size: 40px;}
-.pagination .page-info{width: 350px;color: blue;font-size: 35px;user-select: none;}
-.pagination .button{color: grey;width: 40px;user-select: none;border-radius: 10px;border: 1px solid grey;text-decoration: none;font-size: 40px;}
-/*.table tr td{padding-top:5px;padding-bottom:5px;font-size: 20px;font-family: arial;padding: 4px;padding-left: 7px;padding-right: 7px;border: 1px solid grey;}*/
-/*.table tr:nth-child(even){background:#f9f9f9;}*/
-    .table { width:100%; border-collapse: collapse; margin-top:20px; }
-.table th, .table td { border:1px solid grey; padding:8px; text-align:center; }
-.table th { background:#343a40;color:white }.table tr:nth-child(even) { background:#f2f2f2 }
-.table tr:hover{background: #e6f2ff}
-tr:hover{
-    background:#eaf2ff;
-}
 .fa-edit{color: #00A6E8;}
 .fa-trash{color: red;}
 .linkrestock{color: cyan;text-decoration: none;}

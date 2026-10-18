@@ -91,14 +91,17 @@ if (isset($_POST['btnsubmit'])) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Customer Rewards</title>
+    <link rel="stylesheet" href="bottle-ui.css">
 </head>
 <body>
-    <form action="Register.php" method="POST">
-        <label>Phone Number</label>
-        <input type="number" name="numphonenumber" required><br>
+    <form action="Register.php" method="POST" class="utility-form">
+        <h1>Customer rewards</h1>
+        <p class="help-text">Look up a phone number or add points from a purchase.</p>
+        <label for="phone">Phone number</label>
+        <input id="phone" type="tel" name="numphonenumber" autocomplete="tel" required>
 
-        <label>Purchase Amount</label>
-        <input type="number" name="numamount" placeholder="optional"><br>
+        <label for="amount">Purchase amount</label>
+        <input id="amount" type="number" name="numamount" min="0" placeholder="Optional">
 
         <input type="submit" name="btnsubmit" value="Submit">
     </form>

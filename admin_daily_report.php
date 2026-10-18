@@ -59,10 +59,7 @@ $count=mysqli_num_rows($select_query);
         border:none;color:white;
         border-radius: 5px;
     }
-    .table { width:100%; border-collapse: collapse; margin-top:20px; }
-.table th, .table td { border:1px solid grey; padding:8px; text-align:center; }
-.table th { background:#343a40;color:white }.table tr:nth-child(even) { background:#f2f2f2 }
-.table tr:hover{background: #e6f2ff}
+  
  </style>
         
     

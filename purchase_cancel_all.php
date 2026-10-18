@@ -1,5 +1,5 @@
 <?php
-$connect=mysqli_connect("localhost","root","","the_bottle_database");
+include('connect.php');
  
 $select = mysqli_query($connect,"SELECT pr.Product_id,pr.status,pr.Buy_Quantity,p.Product_name FROM purchase pr LEFT JOIN product p ON p.Product_id=pr.Product_id WHERE status='Unconfirmed'");
 if ($select && mysqli_num_rows($select) > 0 ) {

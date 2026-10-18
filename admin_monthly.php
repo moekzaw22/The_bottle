@@ -57,23 +57,6 @@ h2 {
     font-size: 16px;
     margin:10px;
 }
-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-th, td {
-    padding: 12px 15px;
-    border: 1px solid #ddd;
-    text-align: center;
-}
-th {
-   background:#2c3e50;
-    color:white;
-}
-tr:nth-child(even) { background: #f9f9f9; }
-tr:hover { background: #f1f1f1; }
 </style>
 </head>
 <body>
@@ -89,7 +72,7 @@ tr:hover { background: #f1f1f1; }
 </form>
 </div>
 
-<table>
+<table class="table">
     <tr>
         <th>Year</th>
         <th>Month</th>

@@ -38,7 +38,9 @@ if (isset($_POST['btnadd'])) {
  <html>
  <head>
  	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
  	<title></title>
+	<link rel="stylesheet" href="bottle-ui.css">
  	<link href="fontawesome/fontawesome-free-5.15.4-web/css/all.css" rel="stylesheet">
  	<link rel="stylesheet" type="text/css" href="restock.css">
  </head>

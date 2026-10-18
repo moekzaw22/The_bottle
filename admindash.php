@@ -1,5 +1,9 @@
 <?php 
 session_start();
+if (empty($_SESSION['Username'])) {
+    header('Location: admin_login.php');
+    exit;
+}
 include('connect.php');
 date_default_timezone_set("Asia/Yangon");
 $date = date('Y-m-d');
@@ -34,9 +38,9 @@ $sum2 = $row2['totalsum'];
      }
  </style>
  <body>
-   <?php echo include('admin_navbar.php') ?>
+  <?php include('admin_navbar.php') ?>
  	<div class="container-body">
-         <label class="loginfo">Your Are Now Login As <?php echo $_SESSION['username'] ?></label>
+         <label class="loginfo">You are logged in as <?php echo htmlspecialchars($_SESSION['Username'] ?? '', ENT_QUOTES, 'UTF-8') ?></label>
     </div>
  </body>
 

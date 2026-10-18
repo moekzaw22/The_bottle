@@ -1,0 +1,51 @@
+
+/*
+.pagination{
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  margin: 50px 100px 50px 100px;
+}
+.pagination a{
+  color: blue;
+  user-select: none;
+  width: 40px;
+  border-radius: 10px;
+  border: 1px solid grey;
+  text-decoration: none;
+  font-size: 40px;
+}
+.pagination .page-info{
+  width: 350px;
+  color: blue;
+  font-size: 35px;
+  user-select: none;
+}
+.pagination .button{
+  color: grey;
+  width: 40px;
+  user-select: none;
+  border-radius: 10px;
+  border: 1px solid grey;
+  text-decoration: none;
+  font-size: 40px;
+}*/
+
+  body{
+    font-family: arial;
+  
+  }.container-salereport{
+    
+    right:1%;
+    top:20%;
+  }
+  div .input{
+    padding:10px;
+  }div .input:hover{opacity: 0.3s}
+  .search-result-info{color:white;margin-left: 1%}
+  div .fa-search
+  {
+    color:white;
+    
+    
+  }

@@ -2,17 +2,37 @@
 include('admin_navbar.php');
 include('connect.php');
 $date = date('Y-m-d');
+$total_sum = 0;
+$Quantity = 0;
+$searchTerm = trim((string)($_GET['txtitem'] ?? ''));
+$isSearch = isset($_GET['btnitem']);
 
-// Fetch purchases for today
-$select = "
-    SELECT p.Product_name, pr.Product_id, pr.purchaseid, pr.totalprice,
-           pr.Buy_Quantity, pr.profit, p.sp_price, pr.Time
-    FROM purchase pr
-    JOIN product p ON p.Product_id = pr.Product_id
-    WHERE pr.status='Confirmed' AND pr.Date='$date'
-    ORDER BY pr.Time DESC
-";
-$select_query = mysqli_query($connect, $select);
+// Search today's confirmed sales by product name, barcode, or product ID.
+if ($isSearch) {
+    $searchStatement = $connect->prepare(
+        "SELECT p.Product_name, pr.Product_id, pr.purchaseid, pr.totalprice,
+                pr.Buy_Quantity, pr.profit, p.sp_price, pr.Time
+         FROM purchase pr
+         JOIN product p ON p.Product_id = pr.Product_id
+         WHERE pr.status = 'Confirmed' AND pr.Date = ?
+           AND (p.Product_name LIKE ? OR p.Product_code = ? OR p.Product_id = ?)
+         ORDER BY pr.Time DESC"
+    );
+    $nameMatch = '%' . $searchTerm . '%';
+    $searchStatement->bind_param('ssss', $date, $nameMatch, $searchTerm, $searchTerm);
+    $searchStatement->execute();
+    $select_query = $searchStatement->get_result();
+} else {
+    $select = "
+        SELECT p.Product_name, pr.Product_id, pr.purchaseid, pr.totalprice,
+               pr.Buy_Quantity, pr.profit, p.sp_price, pr.Time
+        FROM purchase pr
+        JOIN product p ON p.Product_id = pr.Product_id
+        WHERE pr.status='Confirmed' AND pr.Date='$date'
+        ORDER BY pr.Time DESC
+    ";
+    $select_query = mysqli_query($connect, $select);
+}
 $count = mysqli_num_rows($select_query);
 
 // Fetch sums
@@ -46,20 +66,14 @@ if (isset($_POST['btnsave'])) {
 <meta charset="utf-8">
 <title>Today's Sales Report</title>
 <style>
-body { font-family: Arial; margin:0; }
-.report-summary { display:flex; gap:50px; margin:20px; }
-.report-summary div { font-size:20px; }
-.table { width:100%; border-collapse: collapse; margin-top:20px; color:white; }
-.table th, .table td { border:1px solid grey;color:black; padding:8px; text-align:center; }
-.table th { background:#222;color:white }
-.table tr:nth-child(even) { background:lightgrey; }
-button { padding:8px 15px; font-size:16px; border:none; border-radius:5px; cursor:pointer; }
-.save { background:#28a745; color:white; }
-.remove-btn{color:white;background:red;padding:5px;border-radius:5px}
-.remove-btn:hover{opacity: 0.4;text-decoration: none;cursor:pointer}
-.print { background:#007bff; color:white; }
-a { color:#f0f0f0; text-decoration:none; }
-a:hover { text-decoration:underline; }
+.report-summary { display:flex; gap:20px 36px; flex-wrap:wrap; margin:24px clamp(16px, 3vw, 40px); }
+.report-summary div { font-size:17px; }
+.today-report-actions { margin:0 clamp(16px, 3vw, 40px) 18px; }
+.report-search-form { display:flex; justify-content:flex-end; margin:18px clamp(16px, 3vw, 40px); }
+.report-search-controls { display:flex; align-items:center; gap:8px; width:min(100%, 520px); }
+.report-search-controls input { flex:1 1 260px; min-width:0; }
+.report-results-summary { margin:14px clamp(16px, 3vw, 40px); color:#d5dfed; }
+@media(max-width:560px) { .report-search-controls { flex-wrap:wrap; } .report-search-controls input { flex-basis:100%; } }
 </style>
 </head>
 <body>
@@ -81,10 +95,14 @@ a:hover { text-decoration:underline; }
     <button type="button" class="print" onclick="window.print()">Print Report</button>
 </div>
 </form>
-<form method="GET">
-<div style="position: absolute;right:10px;top:150px;"><input type="text" name="txtitem" placeholder="Item" style="padding:5px" autofocus><input type="submit" name="btnitem"> 
-</div>
- </form>
+<form method="GET" class="report-search-form" role="search">
+    <div class="report-search-controls">
+        <label class="visually-hidden" for="today-item-search">Search today's sales by product name, barcode, or ID</label>
+        <input id="today-item-search" type="search" name="txtitem" placeholder="Name, barcode, or product ID" value="<?php echo htmlspecialchars($searchTerm, ENT_QUOTES, 'UTF-8'); ?>">
+        <button type="submit" class="btn search" name="btnitem" value="1">Search</button>
+        <?php if ($isSearch): ?><a class="search-clear" href="admin_todaysalerp.php">Clear</a><?php endif; ?>
+    </div>
+</form>
 <table class="table">
 <thead>
 <tr>
@@ -98,84 +116,38 @@ a:hover { text-decoration:underline; }
     <th>Action</th>
 </tr>
 </thead>
-<tbody><?php
-
-if (isset($_GET['btnitem'])) {
-  $item = $_GET['txtitem'];
-  $select = "SELECT purchaseid, pr.Product_id, Product_name, Time, sp_price, totalprice, Buy_Quantity FROM purchase pr, product p WHERE p.Product_id=pr.Product_id AND status='Confirmed' AND Date='$date' AND p.Product_name LIKE '$item%' ORDER BY Time DESC";
-  $select_query1=mysqli_query($connect,$select);
-  $count1 = mysqli_num_rows($select_query1);
- 
-if ($count1 > 0) {
-  # code...
-
-  for ($i=0; $i < $count1; $i++) { 
-  $array=mysqli_fetch_array($select_query1);
-  $purchaseid = $array['purchaseid'];
+<tbody>
+<?php if ($count > 0): ?>
+<?php while ($array = mysqli_fetch_assoc($select_query)):
+  $purchaseid = (int)$array['purchaseid'];
   $product_id = $array['Product_id'];
   $productname = $array['Product_name'];
   $time = $array['Time'];
-  $sp_price = $array['sp_price'];
-  $totalprice = $array['totalprice'];
-  $buyquantity = $array['Buy_Quantity'];
-  $sp_qty = $sp_price * $buyquantity;
-  $profit = $totalprice - $sp_qty;
-  $total_sum = $total_sum + $totalprice;
-  $Quantity = $Quantity + $buyquantity;
-  ?>
-    <tr>
-      <td><?php echo $purchaseid ?></td>
-      <td><?php echo $product_id ?> - <?php echo $productname ?></td>
-      <td><?php echo $buyquantity ?></td>
-      <td><?php echo number_format($totalprice) ?></td>
-      <td><?php echo number_format($sp_qty) ?></td>
-      <td><?php echo number_format($profit) ?></td>
-      <td><?php echo $time ?></td>
-      <td><a class="remove-btn" href="itemremovetdysale.php?PID=<?= $row['purchaseid'] ?>">Remove</a></td>
-      
-      
-      
-    </tr>
-  <?php
-}
-echo "<br>Total Sum For (",$productname,") x ",$Quantity," is <strong>",number_format($total_sum),"</strong>";
-}
-elseif($count < 1) {
-  echo "cannot find product with product name = ",$productname;
-}
- 
-}//if end
-
-
-else{
- for ($i=0; $i < $count; $i++) { 
-  $array=mysqli_fetch_array($select_query);
-  $purchaseid = $array['purchaseid'];
-  $product_id = $array['Product_id'];
-  $productname = $array['Product_name'];
-  $time = $array['Time'];
-  $sp_price = $array['sp_price'];
-  $totalprice = $array['totalprice'];
-  $buyquantity = $array['Buy_Quantity'];
-  $sp_qty = $sp_price * $buyquantity;
-  $profit = $totalprice - $sp_qty;
-  ?>
-    <tr>
-      <td><?php echo $purchaseid ?></td>
-      <td><?php echo $product_id ?> - <?php echo $productname ?></td>
-      <td><?php echo $buyquantity ?></td>
-      <td><?php echo number_format($totalprice) ?></td>
-      <td><?php echo number_format($sp_qty) ?></td>
-      <td><?php echo number_format($profit) ?></td>
-      <td><?php echo $time ?></td>
-      <td><a class="remove-btn" href="itemremovetdysale.php?PID=<?= $row['purchaseid'] ?>">Remove</a></td>
-      
-    </tr>
-  <?php
- }
-}
+  $sp_qty = (float)$array['sp_price'] * (int)$array['Buy_Quantity'];
+  $totalprice = (float)$array['totalprice'];
+  $profit = (float)$array['profit'];
+  $total_sum += $totalprice;
+  $Quantity += (int)$array['Buy_Quantity'];
 ?>
+    <tr>
+      <td><?php echo $purchaseid ?></td>
+      <td><?php echo htmlspecialchars((string)$product_id, ENT_QUOTES, 'UTF-8') ?> - <?php echo htmlspecialchars($productname, ENT_QUOTES, 'UTF-8') ?></td>
+      <td><?php echo (int)$array['Buy_Quantity'] ?></td>
+      <td><?php echo number_format($totalprice) ?></td>
+      <td><?php echo number_format($sp_qty) ?></td>
+      <td><?php echo number_format($profit) ?></td>
+      <td><?php echo $time ?></td>
+      <td><a class="btn remove-btn" href="itemremovetdysale.php?PID=<?= $purchaseid ?>">Remove</a></td>
+      
+    </tr>
+<?php endwhile; ?>
+<?php else: ?>
+    <tr><td colspan="8"><?php echo $isSearch ? 'No sales matched your search today.' : 'No confirmed sales today.'; ?></td></tr>
+<?php endif; ?>
 </tbody>
 </table>
+<?php if ($isSearch && $count > 0): ?>
+<p class="report-results-summary">Matching sales: <?php echo $count; ?> · Items: <?php echo $Quantity; ?> · Total: <?php echo number_format($total_sum); ?> Kyats</p>
+<?php endif; ?>
 </body>
 </html>

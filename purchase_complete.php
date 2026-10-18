@@ -1,5 +1,5 @@
 <?php
-$connect=mysqli_connect("localhost","root","","the_bottle_database");
+include('connect.php');
   
 $select="SELECT pr.status,pr.Buy_Quantity,p.Quantity, p.Product_id,pr.Product_id FROM purchase pr JOIN product p ON pr.Product_id=p.Product_id WHERE
 			 	pr.status='Unconfirmed'";

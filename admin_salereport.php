@@ -1,241 +1,184 @@
-<?php 
+<?php
 include('connect.php');
-date_default_timezone_set("Asia/Yangon");
-$sum='';
-$profit =0;
-$sum=0;
-$total_sale=0;
-  //ini_set('display_errors', 0);
 include('admin_navbar.php');
- ?>
+date_default_timezone_set('Asia/Yangon');
 
- <!DOCTYPE html>
- <html>
- <head>
- 	<meta charset="utf-8">
- 	<title></title>
-  <link href="fontawesome/fontawesome-free-5.15.4-web/css/all.css" rel="stylesheet">
-  <link rel="stylesheet" type="text/css" href="admin_salereport.css">
- </head>
- <body>
+$searchItem = trim((string)($_GET['txtitem'] ?? ''));
+$date1 = trim((string)($_GET['txtdate1'] ?? ''));
+$date2 = trim((string)($_GET['txtdate2'] ?? ''));
+$submitted = isset($_GET['btnsearch']);
+$matches = null;
+$totals = ['totalsum' => 0, 'totalsale' => 0, 'totalprofit' => 0];
+$itemCount = 0;
+$searchError = '';
+$searchHeading = '';
 
- <style type="text/css">
- </style>
-<div class="container-salereport">
-    <form action="admin_salereport.php" method="GET">
-        <div style="float:right;padding-top: 12px;padding-bottom: 10px">
-            <input type="text" name="txtitem" class="input" placeholder="Find Item" value="<?php echo isset($_GET['txtitem']) ? $_GET['txtitem'] : ''; ?>">
-            <input type="date" name="txtdate1" class="input" value="<?php echo isset($_GET['txtdate1']) ? $_GET['txtdate1'] : ''; ?>">
-            <input type="date" name="txtdate2" class="input" value="<?php echo isset($_GET['txtdate2']) ? $_GET['txtdate2'] : ''; ?>">
-            <button class="btn search" name ="btnsearch" type="submit" >Search</button>
-            <button class="btn clear" onclick="clearForm()">Clear</button>
-        </div>
-    </div>
-  <br>
- 	<table class="table">
- 		<tr>
- 			<th>Id</th>
-            <th>Date</th>
-            <th>Time</th>
- 			<th>Product Name</th>
- 			<th>Buy Quantity</th>
- 			<th>Total Price</th>
-            <th>Profit</th>
- 			<th>Action</th>
- 		</tr>
-  <?php
-if (isset($_GET['btnsearch'])) {
-    $searchitem = $_GET['txtitem'];
-    $searchdate1 = $_GET['txtdate1'];
-    $searchdate2 = $_GET['txtdate2'];
-
-                // Sanitize inputs
-                $searchitem = mysqli_real_escape_string($connect, $searchitem);
-                $searchdate1 = mysqli_real_escape_string($connect, $searchdate1);
-                $searchdate2 = mysqli_real_escape_string($connect, $searchdate2);
-// date 1 and 2 not null                
-  if ($searchitem == null && $searchdate1 != null && $searchdate2 != null) {
-        $select_item = "SELECT * FROM product p, purchase pr WHERE p.Product_id=pr.Product_id AND 
-                    pr.Date BETWEEN '$searchdate1' AND '$searchdate2' AND status='Confirmed'";
-                    $item_query = mysqli_query($connect, $select_item);
-                    $item_count = mysqli_num_rows($item_query);
-                     echo "Searching Sale Between ".DATE('d M Y',strtotime($searchdate1)). " AND " .Date('d M Y',strtotime($searchdate2));
-        $result = mysqli_query($connect, "SELECT SUM(totalprice) AS totalsum,SUM(Buy_Quantity) AS 
-                totalsale, SUM(profit) AS profit FROM purchase WHERE Date BETWEEN '$searchdate1' AND '$searchdate2' AND status='Confirmed'");
-                 
-                   
-    
-if (!$result) {
-    // Query failed
-    echo "Error: " . mysqli_error($connect);
-} else {
-    // Query successful
-
-    $row = mysqli_fetch_assoc($result);
-    if (!$row) {
-        // No rows returned
-        echo "No result found.";
-    } else {
-        // Data fetched successfully
-        $sum = $row['totalsum'];
-        $profit=$row['profit'];
-         $total_sale = $row['totalsale'];
-
+$isValidDate = static function (string $value): bool {
+    if ($value === '') {
+        return false;
     }
-  } 
- }
-  elseif ($searchitem == null && $searchdate1 != null && $searchdate2 == null) {
-                  $select_item = "SELECT * FROM product p, purchase pr WHERE p.Product_id=pr.Product_id AND pr.Date='$searchdate1' AND status='Confirmed'";
-                     $item_query = mysqli_query($connect, $select_item);
-                     if ($item_query) {
-                         echo "Searching Date = ".DATE('d M Y',strtotime($searchdate1));
-                     }
-                      $result = mysqli_query($connect, "SELECT SUM(totalprice) AS totalsum,SUM(Buy_Quantity) AS totalsale,SUM(profit) AS profit FROM purchase WHERE Date = '$searchdate1' AND status='Confirmed'");
+    $date = DateTimeImmutable::createFromFormat('!Y-m-d', $value);
+    return $date !== false && $date->format('Y-m-d') === $value;
+};
 
-        if (!$result) {
-    // Query failed
-    echo "Error: " . mysqli_error($connect);
-} else {
-    // Query successful
-    $row = mysqli_fetch_assoc($result);
-    if (!$row) {
-        // No rows returned
-        echo "No result found.";
+if ($submitted) {
+    $validDate1 = $date1 !== '' && $isValidDate($date1);
+    $validDate2 = $date2 !== '' && $isValidDate($date2);
+
+    if (($date1 !== '' && !$validDate1) || ($date2 !== '' && !$validDate2)) {
+        $searchError = 'Enter valid dates to search.';
+    } elseif ($searchItem === '' && !$validDate1 && !$validDate2) {
+        $searchError = 'Enter a product name, code, or ID, or select a date.';
     } else {
-        // Data fetched successfully
-        $sum = $row['totalsum'];
-        $profit=$row['profit'];
-         $total_sale = $row['totalsale'];
+        $conditions = ["pr.status = 'Confirmed'"];
+        $params = [];
+        $types = '';
 
-    }
-              } 
-                  }
-elseif ($searchitem != null && $searchdate1 != null && $searchdate2 != null) {
-    $select_item = "SELECT * FROM product p, purchase pr 
-                    WHERE p.Product_id = pr.Product_id 
-
-                    AND (pr.Product_id = '$searchitem' OR p.Product_name LIKE '%$searchitem%' OR p.Product_Code = '$searchitem')
-                    AND pr.Date BETWEEN '$searchdate1' AND '$searchdate2' 
-                    AND status='Confirmed'";
-
-    $item_query = mysqli_query($connect, $select_item);
-     if ($item_query) {
-            echo "Searching Item = ". $searchitem." Between ".DATE('d M y',strtotime($searchdate1)). " AND " .Date('d M Y',strtotime($searchdate2));
+        if ($validDate1 && $validDate2) {
+            if ($date1 > $date2) {
+                [$date1, $date2] = [$date2, $date1];
+            }
+            $conditions[] = 'pr.Date BETWEEN ? AND ?';
+            $params[] = $date1;
+            $params[] = $date2;
+            $types .= 'ss';
+            $searchHeading = 'Searching between ' . date('d M Y', strtotime($date1)) . ' and ' . date('d M Y', strtotime($date2));
+        } elseif ($validDate1 || $validDate2) {
+            $selectedDate = $validDate1 ? $date1 : $date2;
+            $conditions[] = 'pr.Date = ?';
+            $params[] = $selectedDate;
+            $types .= 's';
+            $searchHeading = 'Searching date: ' . date('d M Y', strtotime($selectedDate));
         }
-     $item_count = mysqli_num_rows($item_query);
 
-    $result = mysqli_query($connect,"SELECT SUM(totalprice) AS totalsum, SUM(Buy_Quantity) AS totalsale, SUM(profit) AS profit
-           FROM product p, purchase pr 
-           WHERE pr.Date BETWEEN '$searchdate1' AND '$searchdate2' 
-           AND pr.Product_id = p.Product_id 
-           AND p.Product_name LIKE '%$searchitem%' 
-           AND status='Confirmed'");
+        if ($searchItem !== '') {
+            $conditions[] = '(p.Product_name LIKE ? OR p.Product_code = ? OR p.Product_id = ?)';
+            $params[] = '%' . $searchItem . '%';
+            $params[] = $searchItem;
+            $params[] = $searchItem;
+            $types .= 'sss';
+            $searchHeading = $searchHeading !== ''
+                ? 'Searching product “' . $searchItem . '” · ' . $searchHeading
+                : 'Searching product “' . $searchItem . '”';
+        }
 
-if (!$result) {
-    // Query failed
-    echo "Error: " . mysqli_error($connect);
-} else {
-    // Query successful
-    $row = mysqli_fetch_assoc($result);
-    if (!$row) {
-        // No rows returned
-        echo "No result found.";
-    } else {
-        // Data fetched successfully
-        $sum = $row['totalsum'];
-        $profit=$row['profit'];
-         $total_sale = $row['totalsale'];
+        $where = implode(' AND ', $conditions);
+        $bindValues = static function (mysqli_stmt $statement, string $bindTypes, array &$values): void {
+            $arguments = [$bindTypes];
+            foreach ($values as $index => &$value) {
+                $arguments[] = &$value;
+            }
+            call_user_func_array([$statement, 'bind_param'], $arguments);
+        };
 
+        $rowsStatement = $connect->prepare(
+            "SELECT pr.purchaseid, pr.Product_id, p.Product_name, pr.Buy_Quantity,
+                    pr.totalprice, pr.Date, pr.Time, pr.profit
+             FROM purchase pr
+             JOIN product p ON p.Product_id = pr.Product_id
+             WHERE $where
+             ORDER BY pr.Date DESC, pr.Time DESC, pr.purchaseid DESC"
+        );
+        $bindValues($rowsStatement, $types, $params);
+        $rowsStatement->execute();
+        $matches = $rowsStatement->get_result();
+        $itemCount = $matches->num_rows;
+
+        $totalsStatement = $connect->prepare(
+            "SELECT SUM(pr.totalprice) AS totalsum,
+                    SUM(pr.Buy_Quantity) AS totalsale,
+                    SUM(pr.profit) AS totalprofit
+             FROM purchase pr
+             JOIN product p ON p.Product_id = pr.Product_id
+             WHERE $where"
+        );
+        $bindValues($totalsStatement, $types, $params);
+        $totalsStatement->execute();
+        $totals = $totalsStatement->get_result()->fetch_assoc() ?: $totals;
     }
-  } 
-    }
-    elseif ($searchitem != null && $searchdate1 != null && $searchdate2 == null){
-        echo "Searching Product = ". $searchitem . " at Date = ". Date('d M Y',strtotime($searchdate1));
-   //item and date 1
-     $select_item = "SELECT * FROM product p, purchase pr WHERE p.Product_id=pr.Product_id AND 
-                    (p.Product_id = '$searchitem' OR p.Product_name LIKE '%$searchitem%' OR p.Product_Code ='$searchitem') AND
-                    pr.Date='$searchdate1'
-                    AND status='Confirmed'";
-    $item_query = mysqli_query($connect, $select_item);
-     $item_count = mysqli_num_rows($item_query);
-   $result = mysqli_query($connect,"SELECT SUM(totalprice) AS totalsum, SUM(Buy_Quantity) AS totalsale, SUM(profit) AS profit
-           FROM product p, purchase pr 
-           WHERE pr.Date = '$searchdate1' 
-           AND pr.Product_id = p.Product_id 
-           AND p.Product_name LIKE '%$searchitem%' 
-           AND status='Confirmed'");
-if (!$result) {
-    // Query failed
-    echo "Error: " . mysqli_error($connect);
-} else {
-    // Query successful
-
-    $row = mysqli_fetch_assoc($result);
-    if (!$row) {
-        // No rows returned
-        echo "No result found.";
-    } else {
-        // Data fetched successfully
-        $sum = $row['totalsum'];
-        $profit=$row['profit'];
-         $total_sale = $row['totalsale'];
-
-    }
-  } 
-    }
-    if (mysqli_num_rows($item_query) >0 ) { 
-    if ($sum || $total_sale) {
-        $total_amount = $sum ?? 0;
-        $total_profit = $profit ?? 0;
-        $total_sales = $total_sale ?? 0;
 }
-    echo "<div class='sale_information'>
-            Total Amount: " . number_format($sum) . " Ks /
-            Total Profit: " . number_format($profit) . " Ks /
-            Total Sale: " . number_format($total_sale) . "
-          </div>";
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>All Sales Report</title>
+    <link rel="stylesheet" href="salereport.css">
+    <link href="fontawesome/fontawesome-free-5.15.4-web/css/all.css" rel="stylesheet">
+    <style>
+        .admin-report-search { display:flex; justify-content:flex-end; margin:22px clamp(16px, 3vw, 40px); }
+        .admin-report-search-controls { display:flex; align-items:center; flex-wrap:wrap; gap:8px; width:min(100%, 900px); }
+        .admin-report-search-controls .input { flex:1 1 180px; min-width:0; }
+        .report-heading, .report-message { margin:18px clamp(16px, 3vw, 40px); }
+        .report-heading { color:#f4f7fc; }
+        .report-message { color:#f0b74c; }
+        .report-summary { margin:14px clamp(16px, 3vw, 40px); }
+        .report-table-wrap { max-width:100%; overflow-x:auto; padding:0 16px 24px; }
+        .report-table-wrap .table { min-width:760px; }
+        @media(max-width:560px) { .admin-report-search-controls .input { flex-basis:100%; } }
+    </style>
+</head>
+<body>
+    <form action="admin_salereport.php" method="GET" class="admin-report-search" role="search">
+        <div class="admin-report-search-controls">
+            <input type="search" name="txtitem" class="input" aria-label="Search sales by product name, code, or ID" placeholder="Product name, barcode, or ID" value="<?= htmlspecialchars($searchItem, ENT_QUOTES, 'UTF-8') ?>">
+            <input type="date" name="txtdate1" class="input" aria-label="Start date" value="<?= htmlspecialchars($date1, ENT_QUOTES, 'UTF-8') ?>">
+            <input type="date" name="txtdate2" class="input" aria-label="End date" value="<?= htmlspecialchars($date2, ENT_QUOTES, 'UTF-8') ?>">
+            <button class="btn search" name="btnsearch" value="1" type="submit">Search</button>
+            <?php if ($submitted): ?><a class="search-clear" href="admin_salereport.php">Clear</a><?php endif; ?>
+        </div>
+    </form>
 
-        
-        $item_count = mysqli_num_rows($item_query);
-        echo "</br>Number of rows returned: $item_count<br>";
-        if ($item_count > 0) {
-     for ($i=0; $i < $item_count ; $i++) { 
-        $row1=mysqli_fetch_array($item_query);
-        $purchase_id = $row1['purchaseid'];
-         $quantity=$row1['Buy_Quantity'];
-        $price=$row1['Price'];
-        $profit = $row1['profit'];
-       $date = $row1['Date'];
-        $time = $row1['Time'];
-       $productname= $row1['Product_name'];
-       $buyquantity = $row1['Buy_Quantity'];
-          $totalprice=$price * $quantity;
+    <?php if ($submitted && $searchHeading !== ''): ?>
+        <h2 class="report-heading"><?= htmlspecialchars($searchHeading, ENT_QUOTES, 'UTF-8') ?></h2>
+    <?php endif; ?>
+    <?php if ($searchError !== ''): ?>
+        <p class="report-message"><?= htmlspecialchars($searchError, ENT_QUOTES, 'UTF-8') ?></p>
+    <?php endif; ?>
+    <?php if ($matches !== null && $itemCount > 0): ?>
+        <div class="report-summary">
+            Total Amount: <?= number_format((float)$totals['totalsum']) ?> /
+            Total Profit: <?= number_format((float)$totals['totalprofit']) ?> /
+            Items Sold: <?= number_format((int)$totals['totalsale']) ?>
+        </div>
+    <?php endif; ?>
 
-
-
-        ?>
-          <tr>
-            <td><?php echo $purchase_id ?></td>
-              <td><?php echo $date ?></td>
-          <td><?php echo  $time ?></td>
-           <td><?php echo  $productname ?></td>
-          <td><?php echo number_format($buyquantity) ?></td>
-          <td><?php echo number_format($totalprice) ?> Ks</td>
-          <td><?php echo number_format($profit) ?> Ks</td>
-        <td><a href="itemremovetdysale.php?PID='<?php echo $purchase_id ?>'">Remove</a></td>
-        
-          </tr>
-
-        <?php
-      }
-    }
-  }
-  
-} //if stop here
-
-
-  ?>
-  
-  </form>
- </body>
- </html>
+    <div class="report-table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Product Name</th>
+                    <th>Buy Quantity</th>
+                    <th>Total Price</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Profit</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if ($matches === null): ?>
+                    <tr><td colspan="8">Choose a product or date to search sales.</td></tr>
+                <?php elseif ($itemCount === 0): ?>
+                    <tr><td colspan="8">No confirmed sales matched your search.</td></tr>
+                <?php else: ?>
+                    <?php while ($row = $matches->fetch_assoc()): ?>
+                        <tr>
+                            <td><?= (int)$row['purchaseid'] ?></td>
+                            <td><?= htmlspecialchars($row['Product_name'], ENT_QUOTES, 'UTF-8') ?></td>
+                            <td><?= (int)$row['Buy_Quantity'] ?></td>
+                            <td><?= number_format((float)$row['totalprice']) ?> Ks</td>
+                            <td><?= htmlspecialchars(date('d M Y', strtotime($row['Date'])), ENT_QUOTES, 'UTF-8') ?></td>
+                            <td><?= htmlspecialchars($row['Time'], ENT_QUOTES, 'UTF-8') ?></td>
+                            <td><?= number_format((float)$row['profit']) ?> Ks</td>
+                            <td><a class="btn remove-btn" href="itemremoveallsale.php?PID=<?= (int)$row['purchaseid'] ?>" onclick="return confirm('Remove this sale record?')">Remove</a></td>
+                        </tr>
+                    <?php endwhile; ?>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

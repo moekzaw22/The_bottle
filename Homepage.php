@@ -1,6 +1,6 @@
     <?php
+    require_once __DIR__ . '/connect.php';
     include('navbar.php');
-     $connect=mysqli_connect("localhost","root","","the_bottle_database");
     $product_whiskey="SELECT * FROM product WHERE product_type='Whiskey'";
     $product_whiskey_query=mysqli_query($connect,$product_whiskey);
     $product_whiskey_count=mysqli_num_rows($product_whiskey_query);
